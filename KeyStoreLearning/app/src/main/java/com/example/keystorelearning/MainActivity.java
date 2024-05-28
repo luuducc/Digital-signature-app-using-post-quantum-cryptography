@@ -46,11 +46,11 @@ import javax.crypto.NoSuchPaddingException;
 
 public class MainActivity extends AppCompatActivity {
     private TextView txtView;
-    private final String dilithiumParametersType = "dilithium5";
+    private final String dilithiumParametersType = "dilithium3";
     private final String PRIVATE_FILE_NAME = "private.dat";
     private final String PUBLIC_FILE_NAME = "public.dat";
-    private final String KEY_ALIAS = "second_key";
-    private final int position = 0;
+    private final String KEY_ALIAS = "third_key";
+    private final int position = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
