@@ -1,8 +1,11 @@
-package com.example.keystorelearning;
+package com.example.keystorelearning.util;
 
 import android.content.Context;
 import android.util.Log;
 
+import com.example.keystorelearning.keytostore.KeyToStore;
+import com.example.keystorelearning.keytostore.PrivateKeyToStore;
+import com.example.keystorelearning.keytostore.PublicKeyToStore;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -10,7 +13,6 @@ import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -90,7 +92,7 @@ public class FileHelper {
     public static <T extends KeyToStore> void writeJsonKeyToFile(T key, Context context, String fileName) {
         List<T> keyList = retrieveKeyFromFile(context, fileName, TypeToken.getParameterized(List.class, key.getClass()).getType());
 
-        boolean isPrivate = key instanceof  PrivateKeyToStore;
+        boolean isPrivate = key instanceof PrivateKeyToStore;
 
         File file = new File(context.getFilesDir(), fileName);
 

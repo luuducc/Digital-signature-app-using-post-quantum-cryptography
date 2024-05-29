@@ -1,4 +1,4 @@
-package com.example.keystorelearning;
+package com.example.keystorelearning.test;
 
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;

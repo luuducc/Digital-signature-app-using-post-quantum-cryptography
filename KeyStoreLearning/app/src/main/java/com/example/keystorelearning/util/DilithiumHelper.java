@@ -1,4 +1,4 @@
-package com.example.keystorelearning;
+package com.example.keystorelearning.util;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumKeyGenerationParameters;

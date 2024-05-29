@@ -1,4 +1,4 @@
-package com.example.keystorelearning;
+package com.example.keystorelearning.keytostore;
 
 import java.util.UUID;
 

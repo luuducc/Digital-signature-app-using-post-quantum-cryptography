@@ -1,4 +1,4 @@
-package com.example.keystorelearning;
+package com.example.keystorelearning.keytostore;
 
 import androidx.annotation.Nullable;
 
@@ -8,21 +8,34 @@ import java.util.UUID;
 
 public class PublicKeyToStore extends KeyToStore {
     private final String publicKey;
+    private boolean isRegistered = false;
+    private boolean visibility = false;
 //    private UUID uuid;
 
     public PublicKeyToStore(byte[] publicKeyByte, UUID uuid, String keyAlias, String dilithiumParametersType) {
         super(uuid, keyAlias, dilithiumParametersType);
         this.publicKey = Base64.getEncoder().encodeToString(publicKeyByte);
-//        this.uuid = uuid;
     }
 
     public byte[] getPublicKey() {
         return Base64.getDecoder().decode(publicKey);
     }
 
-//    public UUID getUuid() {
-//        return uuid;
-//    }
+    public boolean isRegistered() {
+        return isRegistered;
+    }
+
+    public void setRegistered(boolean registered) {
+        isRegistered = registered;
+    }
+
+    public boolean isVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(boolean visibility) {
+        this.visibility = visibility;
+    }
 
     @Override
     public boolean equals(@Nullable Object obj) {
