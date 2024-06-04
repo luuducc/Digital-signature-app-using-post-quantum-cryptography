@@ -2,12 +2,13 @@ const jwt = require("jsonwebtoken");
 
 const verifyToken = (req, res, next) => {
   //ACCESS TOKEN FROM HEADER, REFRESH TOKEN FROM COOKIE
-  const token = req.headers.token;
+  const token = req.headers.authorization;
   // const refreshToken = req.cookies.refreshToken;
   if (token) {
     const accessToken = token.split(" ")[1];
     jwt.verify(accessToken, process.env.ACCESS_KEY, (err, user) => {
       if (err) {
+        console.log(err)
         return res.status(403).json("Token is not valid!");
       }
       req.user = user;
@@ -30,7 +31,7 @@ const verifyTokenAndUserAuthorization = (req, res, next) => {
 
 const verifyTokenAndUser = (req, res, next) => {
   verifyToken(req, res, () => {
-    if (req.user.id === req.params.id) { //verify user cần id? còn admin thì không
+    if (req.user._id === req.params.userId) { //verify user cần id? còn admin thì không
       next();
     } else {
       res.status(403).json("Incorrect userId!");

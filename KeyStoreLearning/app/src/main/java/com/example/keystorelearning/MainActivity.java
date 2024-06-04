@@ -43,22 +43,22 @@ public class MainActivity extends AppCompatActivity {
         List<PublicKeyToStore> retrievedPublicKeys = FileHelper.retrievePublicKeyFromFile(getApplicationContext(), PUBLIC_FILE_NAME);
 
         // assume that user pick the specific key pair from the list shown in recycler view
-//        PrivateKeyToStore privateKeyToStore = retrievedPrivateKeys.get(position);
-//        PublicKeyToStore publicKeyToStore = retrievedPublicKeys.get(position);
-//        byte[] encryptedPrivateKeyByte = privateKeyToStore.getEncryptedPrivateKey();
-//        byte[] privateKeyByte = RSADecryptor.decryptData(encryptedPrivateKeyByte, RSAHelper.getPrivateKey());
-//        byte[] publicKeyByte = publicKeyToStore.getPublicKey();
-//
-//
-//        DilithiumPublicKeyParameters publicKeyParameters = DilithiumHelper.retrievePublicKey(privateKeyToStore.getDilithiumParametersType(), publicKeyByte);
-//        DilithiumPrivateKeyParameters privateKeyParameters = DilithiumHelper.retrievePrivateKey(publicKeyToStore.getDilithiumParametersType(), privateKeyByte, publicKeyParameters);
-//
-//        byte[] data = "".getBytes();
-//
-//        byte[] signedMessage = DilithiumHelper.sign(privateKeyParameters, data);
-//        boolean verifyResult = DilithiumHelper.verify(publicKeyParameters, data, signedMessage);
-//
-//        txtView.setText(Boolean.toString(verifyResult));
+        PrivateKeyToStore privateKeyToStore = retrievedPrivateKeys.get(position);
+        PublicKeyToStore publicKeyToStore = retrievedPublicKeys.get(position);
+        byte[] encryptedPrivateKeyByte = privateKeyToStore.getEncryptedPrivateKey();
+        byte[] privateKeyByte = RSADecryptor.decryptData(encryptedPrivateKeyByte, RSAHelper.getPrivateKey());
+        byte[] publicKeyByte = publicKeyToStore.getPublicKey();
+
+
+        DilithiumPublicKeyParameters publicKeyParameters = DilithiumHelper.retrievePublicKey(privateKeyToStore.getDilithiumParametersType(), publicKeyByte);
+        DilithiumPrivateKeyParameters privateKeyParameters = DilithiumHelper.retrievePrivateKey(publicKeyToStore.getDilithiumParametersType(), privateKeyByte, publicKeyParameters);
+
+        byte[] data = "".getBytes();
+
+        byte[] signedMessage = DilithiumHelper.sign(privateKeyParameters, data);
+        boolean verifyResult = DilithiumHelper.verify(publicKeyParameters, data, signedMessage);
+
+        txtView.setText(Boolean.toString(verifyResult));
 
         Key_RecyclerViewAdapter adapter = new Key_RecyclerViewAdapter(this, retrievedPublicKeys);
         recyclerView.setAdapter(adapter);

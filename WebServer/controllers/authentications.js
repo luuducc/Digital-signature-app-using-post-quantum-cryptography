@@ -55,11 +55,11 @@ const loginUser = async (req, res) => {
 }
 
 const generateToken = (user) => {
-  const { username, email, password } = user
+  const { _id, username, email, isAdmin } = user
   return jwt.sign(
-    { username, email, password},
+    { _id, username, email, isAdmin},
     process.env.SECRET_KEY,
-    { expiresIn: "5m" }
+    { expiresIn: "10m" }
   )
 }
 const generateRefreshToken = (user) => {

@@ -7,15 +7,15 @@ const {
 const {verifyToken, verifyTokenAndUser, verifyTokenAndAdmin} = require("../controllers/verifyToken");
 
 router.route('/:userId')
-  .get(getAllTranscripts)
-  .post(createTranscript)
+  .get(verifyToken, verifyTokenAndUser, getAllTranscripts)
+  .post(verifyToken, createTranscript)
 
 router.route('/:className')
-  .get(getTranscript)
-  .patch(updateTranscript)
-  .delete(deleteTranscript)
+  .get(verifyToken, getTranscript)
+  .patch(verifyToken, updateTranscript)
+  .delete(verifyToken, deleteTranscript)
 
 router.route('/:className/:studentId')
-  .delete(deleteStudent)
+  .delete(verifyToken, deleteStudent)
 
 module.exports = router
