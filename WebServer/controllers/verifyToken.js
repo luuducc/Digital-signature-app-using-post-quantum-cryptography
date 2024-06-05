@@ -11,6 +11,7 @@ const verifyToken = (req, res, next) => {
         console.log(err)
         return res.status(403).json("Token is not valid!");
       }
+      // create user property for request, pass the returned user value 
       req.user = user;
       next();
     });

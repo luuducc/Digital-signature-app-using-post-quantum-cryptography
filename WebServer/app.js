@@ -3,6 +3,8 @@ const express = require('express')
 const app = express()
 const transcripts = require('./routes/transcripts')
 const authentications = require('./routes/authentications')
+const publicKey = require('./routes/publicKey')
+const verify = require('./routes/verify')
 require('dotenv').config()
 
 const port = 5000
@@ -20,6 +22,8 @@ app.use(express.json())
 
 app.use('/api/transcript', transcripts)
 app.use('/api/auth', authentications)
+app.use('/api/key/register', publicKey)
+app.use('/api/verify', verify)
 
 app.get('/', (req, res) => {
   res.json('hello')

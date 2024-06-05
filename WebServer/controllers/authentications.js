@@ -59,7 +59,7 @@ const generateToken = (user) => {
   return jwt.sign(
     { _id, username, email, isAdmin},
     process.env.SECRET_KEY,
-    { expiresIn: "10m" }
+    { expiresIn: "1h" }
   )
 }
 const generateRefreshToken = (user) => {

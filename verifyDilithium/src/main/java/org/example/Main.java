@@ -11,13 +11,13 @@ public class Main {
         // Get the parameters from command line
         String parameterType = args[0];
         String publicKeyStr = args[1];
-        String signedMessageStr = args[2];
-        String hashStr = args[3];
+        String signatureString = args[2];
+        String initialHashedMessage = args[3];
 
         // Decode the base64 encoded strings
         byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyStr);
-        byte[] signedMessage = Base64.getDecoder().decode(signedMessageStr);
-        byte[] hash = Base64.getDecoder().decode(hashStr);
+        byte[] signedMessage = Base64.getDecoder().decode(signatureString);
+        byte[] hash = Base64.getDecoder().decode(initialHashedMessage);
 
         // my logic
         DilithiumPublicKeyParameters publicKeyParameters = retrievePublicKey(parameterType, publicKeyBytes);
@@ -25,10 +25,10 @@ public class Main {
         System.out.println(Boolean.toString(verifyResult));
     }
 
-    public static boolean verify(DilithiumPublicKeyParameters publicKeyParameters, byte[] initialHashedData, byte[] signedMessage) {
+    public static boolean verify(DilithiumPublicKeyParameters publicKeyParameters, byte[] initialHashedData, byte[] signature) {
         DilithiumSigner verifySigner = new DilithiumSigner();
         verifySigner.init(publicKeyParameters.isPrivate(), publicKeyParameters);
-        return verifySigner.verifySignature(initialHashedData, signedMessage);
+        return verifySigner.verifySignature(initialHashedData, signature);
     }
 
     public static DilithiumPublicKeyParameters retrievePublicKey(String parametersType, byte[] publicEncoded) {
