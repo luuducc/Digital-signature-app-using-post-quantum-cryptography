@@ -1,6 +1,8 @@
 package com.example.graduationproject;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText editTextUsername, editTextPassword;
     private Button buttonAction;
     private TextView textViewToggleAction;
+    private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
 
     private boolean isLoginMode = true;
 
@@ -64,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 if (isLoginMode) {
                     // Implement login logic here
                     Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("http://192.168.43.79:5000")
+                            .baseUrl("http://192.168.1.196:5000")
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();
                     String email, password;
@@ -80,8 +83,14 @@ public class MainActivity extends AppCompatActivity {
                                 LoginResponse loginResponse = response.body();
                                 Toast.makeText(MainActivity.this, "hello " + loginResponse.getUsername(), Toast.LENGTH_SHORT).show();
 
+                                // Store access token to SharedPreferences
+                                SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences .edit();
+                                editor.putString("accessToken", loginResponse.getAccessToken());
+                                editor.apply();
+
                                 // Switch activity
-                                Intent myIntent = new Intent(MainActivity.this, HomeActivity.class);
+                                Intent myIntent = new Intent(MainActivity.this, NewHomeActivity.class);
 //                                startActivity(myIntent);
                                 Bundle myBundle = new Bundle();
                                 myBundle.putString("userId", loginResponse.get_id());

@@ -76,4 +76,4 @@ public class Key_RecyclerViewAdapter extends RecyclerView.Adapter<Key_RecyclerVi
             expandedLayout.setVisibility(View.GONE);
         }
     }
- }
+}

@@ -1,4 +1,4 @@
-package com.example.graduationproject;
+package com.example.graduationproject.data.remote;
 
 public class LoginResponse {
     private String _id;
