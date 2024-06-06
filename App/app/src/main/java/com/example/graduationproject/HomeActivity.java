@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.graduationproject.utils.CreatePDF;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,14 +54,14 @@ public class HomeActivity extends AppCompatActivity {
                 String className = spinner.getSelectedItem().toString();
                 TranscriptAdapter adapter = (TranscriptAdapter) recyclerView.getAdapter();
                 List<TranscriptData.StudentGrade> studentGradeList = adapter.getDataList();
-                try {
-                    CreatePDF.createPdf(v.getContext(), studentGradeList, className);
-                    Toast.makeText(v.getContext(), "Created PDF for class: " + className, Toast.LENGTH_LONG).show();
-                } catch (IOException e) {
-                    Toast.makeText(v.getContext(), "Failed to create PDF", Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                }
+//                try {
+//                    CreatePDF.createPdf(v.getContext(), studentGradeList, className);
+//                    Toast.makeText(v.getContext(), "Created PDF for class: " + className, Toast.LENGTH_LONG).show();
+//                } catch (IOException e) {
+//                    Toast.makeText(v.getContext(), "Failed to create PDF", Toast.LENGTH_LONG).show();
+//                    e.printStackTrace();
+//                    throw new RuntimeException(e);
+//                }
             }
         });
 

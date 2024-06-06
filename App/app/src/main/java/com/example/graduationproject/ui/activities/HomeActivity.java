@@ -11,9 +11,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.graduationproject.R;
-import com.example.graduationproject.ViewPagerAdapter;
 import com.example.graduationproject.data.remote.Transcript;
 import com.example.graduationproject.network.services.TranscriptApiService;
+import com.example.graduationproject.ui.adapters.ViewPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -27,6 +27,7 @@ import retrofit2.Response;
 public class HomeActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
+    private List<Transcript> transcripts;
     private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
 
 
@@ -38,8 +39,44 @@ public class HomeActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewPager);
 
         fetchTranscripts();
+    }
 
-        ViewPagerAdapter adapter = new ViewPagerAdapter(this);
+    private void fetchTranscripts() {
+        TranscriptApiService transcriptApiService = TranscriptApiService.getInstance();
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
+        String userId =  sharedPreferences.getString("userId", "defaultId");
+        String accessToken =  sharedPreferences.getString("accessToken", "defautAccessToken");
+        Toast.makeText(HomeActivity.this,"baby", Toast.LENGTH_SHORT).show();
+        Log.d("MyHomeActivity", "hello" + userId + accessToken);
+
+        transcriptApiService.getTranscripts(userId, "Bearer " + accessToken).enqueue(new Callback<List<Transcript>>() {
+            @Override
+            public void onResponse(Call<List<Transcript>> call, Response<List<Transcript>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("MyHomeActivity", response.message()); // http status message
+                    transcripts = response.body();
+
+                    // only setup view pager when the transcript is fetched
+                    setupViewPager();
+                } else {
+                    try {
+                        Log.d("MyHomeActivity", response.message()); // http status message
+                        Log.d("MyHomeActivity", response.errorBody().string()); // actual server response message
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Transcript>> call, Throwable throwable) {
+                Log.d("MyHomeActivity", "error when fetch");
+            }
+        });
+    }
+
+    private void setupViewPager() {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(this, transcripts);
         viewPager.setAdapter(adapter);
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
@@ -52,36 +89,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         }).attach();
     }
-
-    private void fetchTranscripts() {
-        TranscriptApiService transcriptApiService = TranscriptApiService.getInstance();
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
-        String userId =  sharedPreferences.getString("userId", "defaultId");
-        String accessToken =  sharedPreferences.getString("accessToken", "defautAccessToken");
-        Toast.makeText(HomeActivity.this,"baby", Toast.LENGTH_SHORT).show();
-        Log.d("HomeActivity", "hello" + userId + accessToken);
-
-        transcriptApiService.getTranscripts(userId, "Bearer " + accessToken).enqueue(new Callback<List<Transcript>>() {
-            @Override
-            public void onResponse(Call<List<Transcript>> call, Response<List<Transcript>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<Transcript> transcripts = response.body();
-                    List<String> classNames = new ArrayList<>();
-                    for (Transcript transcript : transcripts) {
-                        classNames.add(transcript.getClassName());
-
-                    }
-                    String[] classNameArray = classNames.toArray(new String[0]);
-                    Log.d("HomeActivity", classNameArray[0]);
-                } else {
-                    Log.d("HomeActivity", "failed to get trancsript");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Transcript>> call, Throwable throwable) {
-                Log.d("HomeActivity", "error when fetch");
-            }
-        });
+    public List<Transcript> getTranscripts() {
+        return this.transcripts;
     }
 }

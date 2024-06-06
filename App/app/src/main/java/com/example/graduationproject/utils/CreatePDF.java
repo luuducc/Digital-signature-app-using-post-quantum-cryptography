@@ -1,10 +1,12 @@
-package com.example.graduationproject;
+package com.example.graduationproject.utils;
 
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.graduationproject.TranscriptData;
+import com.example.graduationproject.data.remote.Transcript;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -17,11 +19,6 @@ import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 
-import com.example.graduationproject.TranscriptData;
-import com.itextpdf.kernel.colors.ColorConstants;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.properties.TextAlignment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,7 +27,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class CreatePDF {
-    public static void createPdf(Context context, List<TranscriptData.StudentGrade> studentGradeList, String className) throws IOException {
+    public static void createPdf(Context context, List<Transcript.StudentGrade> studentGradeList, String className) throws IOException {
         String pdfPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
         File file = new File(pdfPath,className + ".pdf");
         if(file.exists()) {
