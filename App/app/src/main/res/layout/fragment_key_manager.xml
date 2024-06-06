@@ -7,7 +7,7 @@
     tools:context=".NewHomeActivity">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/keyRecyclerView"
+        android:id="@+id/key_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="600dp"
         tools:layout_editor_absoluteX="79dp"
@@ -15,14 +15,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/generateKeyButton"/>
+        app:layout_constraintBottom_toTopOf="@id/btnGenerateKey"/>
 
     <Button
-        android:id="@+id/generateKeyButton"
+        android:id="@+id/btnGenerateKey"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintTop_toBottomOf="@id/keyRecyclerView"
+        android:text="Generate Key Pair"
+        app:layout_constraintTop_toBottomOf="@id/key_recycler_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>

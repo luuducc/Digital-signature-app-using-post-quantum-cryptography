@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                         if (response.isSuccessful()) {
                             LoginResponse loginResponse = response.body();
-                            Toast.makeText(LoginActivity.this, "hello " + loginResponse.getUsername(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Hello " + loginResponse.getUsername(), Toast.LENGTH_SHORT).show();
 
                             // Store access token and user id to SharedPreferences
                             SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
@@ -62,14 +62,14 @@ public class LoginActivity extends AppCompatActivity {
 
                             navigateToMainScreen();
                         } else {
-                            Toast.makeText(LoginActivity.this,"failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this,"Failed to login", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<LoginResponse> call, Throwable throwable) {
-                        Toast.makeText(LoginActivity.this,"Cannot login", Toast.LENGTH_SHORT).show();
-                        Log.e("LoginActivity", "Failed to login", throwable);
+                        Toast.makeText(LoginActivity.this,"Server error", Toast.LENGTH_SHORT).show();
+                        Log.e("LoginActivity", "Server error", throwable);
                         // Print the error message to the console
                         throwable.printStackTrace();;
                     }

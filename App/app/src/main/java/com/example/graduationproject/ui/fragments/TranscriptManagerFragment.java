@@ -1,8 +1,5 @@
 package com.example.graduationproject.ui.fragments;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,23 +15,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.graduationproject.HomeActivity;
 import com.example.graduationproject.R;
 import com.example.graduationproject.data.remote.Transcript;
-import com.example.graduationproject.network.services.TranscriptApiService;
-import com.example.graduationproject.ui.activities.LoginActivity;
 import com.example.graduationproject.ui.adapters.TranscriptAdapter;
 import com.example.graduationproject.utils.CreatePDF;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class TranscriptManagerFragment extends Fragment {
     private Button btnCreatePdf, btnSign;
@@ -43,6 +32,7 @@ public class TranscriptManagerFragment extends Fragment {
     private List<Transcript> transcripts;
     private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
 
+    // allow the fragment to fetch data and display
     public static TranscriptManagerFragment newInstance(List<Transcript> transcripts) {
         TranscriptManagerFragment fragment = new TranscriptManagerFragment();
         Bundle args = new Bundle();
@@ -121,6 +111,7 @@ public class TranscriptManagerFragment extends Fragment {
                     Toast.makeText(v.getContext(), "Created PDF for class: " + className, Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
                     Toast.makeText(v.getContext(), "Failed to create PDF", Toast.LENGTH_LONG).show();
+                    Log.d("TranscriptFragment", e.toString());
                     e.printStackTrace();
                 }
             }

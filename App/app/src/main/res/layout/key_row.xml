@@ -8,68 +8,116 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="8dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/recycler_view_item"
+            android:id="@+id/key_row_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:padding="16dp">
 
+            <!-- Key Alias -->
             <TextView
                 android:id="@+id/keyAlias"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginLeft="20dp"
-                android:text="TextView"
-                app:layout_constraintBottom_toTopOf="@id/expanded_layout"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.113"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Key Alias"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@id/isRegistered"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintBottom_toTopOf="@id/expandedLayout" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <!-- Is Registered -->
+            <TextView
+                android:id="@+id/isRegistered"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/expanded_layout"
-                app:layout_constraintTop_toBottomOf="@id/keyAlias"
+                android:text="Registered"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@id/expandedLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/keyAlias"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.086" />
+
+            <!-- Expanded Layout -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/expandedLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/keyAlias"
                 app:layout_constraintBottom_toBottomOf="parent"
-                >
+                android:layout_marginTop="5dp">
+
+                <!-- Key ID -->
                 <TextView
-                    android:id="@+id/keyInfo"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/keyId"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="TextView"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/register_button"
-                    app:layout_constraintHorizontal_bias="0.161"
+                    android:text="UUID: 12345"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0" />
-                <Button
-                    android:id="@+id/register_button"
+                    app:layout_constraintBottom_toTopOf="@id/keyParaType"
+                    android:paddingEnd="8dp"
+                    android:layout_marginEnd="10dp"/>
+
+                <!-- Key Parameter Type -->
+                <TextView
+                    android:id="@+id/keyParaType"
+                    android:layout_width="218dp"
+                    android:layout_height="29dp"
+                    android:paddingEnd="8dp"
+                    android:text="Parameter Type: Type"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/keyId" />
+
+                <!-- Guideline to separate TextViews and Buttons -->
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintStart_toEndOf="@id/keyInfo"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:text="Register" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                app:layout_constraintTop_toBottomOf="@id/expanded_layout"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginTop="8dp"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="218dp" />
 
+                <!-- Register Button -->
+                <Button
+                    android:id="@+id/btnRegister"
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text="Register"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/btnExtract"
+                    app:layout_constraintStart_toStartOf="@+id/guideline"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginEnd="15dp" />
+
+                <!-- Extract Button -->
+                <Button
+                    android:id="@+id/btnExtract"
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text="Extract"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/guideline"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginEnd="15dp" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

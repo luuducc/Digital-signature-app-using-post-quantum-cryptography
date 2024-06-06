@@ -11,9 +11,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.Transcript;
 import com.example.graduationproject.network.services.TranscriptApiService;
 import com.example.graduationproject.ui.adapters.ViewPagerAdapter;
+import com.example.graduationproject.utils.FileHelper;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -28,16 +30,19 @@ public class HomeActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
     private List<Transcript> transcripts;
+    private List<PublicKeyToStore> retrievedPublicKeys;
     private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
+    private final String PUBLIC_FILE_NAME = "public.dat";
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.home);
+        setContentView(R.layout.activity_home);
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
 
+        fetchKeysInKeyStore();
         fetchTranscripts();
     }
 
@@ -46,7 +51,6 @@ public class HomeActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
         String userId =  sharedPreferences.getString("userId", "defaultId");
         String accessToken =  sharedPreferences.getString("accessToken", "defautAccessToken");
-        Toast.makeText(HomeActivity.this,"baby", Toast.LENGTH_SHORT).show();
         Log.d("MyHomeActivity", "hello" + userId + accessToken);
 
         transcriptApiService.getTranscripts(userId, "Bearer " + accessToken).enqueue(new Callback<List<Transcript>>() {
@@ -56,7 +60,7 @@ public class HomeActivity extends AppCompatActivity {
                     Log.d("MyHomeActivity", response.message()); // http status message
                     transcripts = response.body();
 
-                    // only setup view pager when the transcript is fetched
+                    // Only setup view pager when the transcript is fetched
                     setupViewPager();
                 } else {
                     try {
@@ -74,9 +78,16 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
-
+    private void fetchKeysInKeyStore() {
+        retrievedPublicKeys = FileHelper.retrievePublicKeyFromFile(getApplicationContext(), PUBLIC_FILE_NAME);
+    }
     private void setupViewPager() {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(this, transcripts);
+        ViewPagerAdapter adapter;
+        if (retrievedPublicKeys == null) {
+            adapter = new ViewPagerAdapter(this, transcripts, new ArrayList<>());
+        } else {
+            adapter = new ViewPagerAdapter(this, transcripts, retrievedPublicKeys);
+        }
         viewPager.setAdapter(adapter);
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
