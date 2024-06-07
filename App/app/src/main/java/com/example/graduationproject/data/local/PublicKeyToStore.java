@@ -19,6 +19,10 @@ public class PublicKeyToStore extends KeyToStore {
         return Base64.getDecoder().decode(publicKey);
     }
 
+    public String getPublicKeyString() {
+        return this.publicKey;
+    }
+
     public boolean isRegistered() {
         return isRegistered;
     }

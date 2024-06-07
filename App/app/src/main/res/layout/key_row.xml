@@ -95,9 +95,9 @@
                     android:orientation="vertical"
                     app:layout_constraintGuide_begin="218dp" />
 
-                <!-- Register Button -->
+                <!-- New Register Button -->
                 <Button
-                    android:id="@+id/btnRegister"
+                    android:id="@+id/btnRegisterKey"
                     android:layout_width="110dp"
                     android:layout_height="wrap_content"
                     android:text="Register"

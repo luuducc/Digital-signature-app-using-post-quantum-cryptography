@@ -15,9 +15,6 @@ import java.security.PublicKey;
 import java.util.UUID;
 
 public class KeyToStoreHelper {
-    private static final String PRIVATE_FILE_NAME = "private.dat";
-    private static final String PUBLIC_FILE_NAME = "public.dat";
-
     private static final String[] dilithiumParameterList = {""};
     public static void generateDilithiumKeyPair(String keyAlias, Context context, String dilithiumParametersType) throws MyException {
 
@@ -41,7 +38,7 @@ public class KeyToStoreHelper {
         PrivateKeyToStore privateKeyToStore = new PrivateKeyToStore(encryptedPrivateKeyStoreKey, uuid, keyAlias, dilithiumParametersType);
         PublicKeyToStore publicKeyToStore = new PublicKeyToStore(publicKeyParameters.getEncoded(), uuid, keyAlias, dilithiumParametersType);
 
-        FileHelper.writeJsonKeyToFile(privateKeyToStore, context.getApplicationContext(), PRIVATE_FILE_NAME);
-        FileHelper.writeJsonKeyToFile(publicKeyToStore, context.getApplicationContext(), PUBLIC_FILE_NAME);
+        FileHelper.writeJsonKeyToFile(privateKeyToStore, context.getApplicationContext());
+        FileHelper.writeJsonKeyToFile(publicKeyToStore, context.getApplicationContext());
     }
 }

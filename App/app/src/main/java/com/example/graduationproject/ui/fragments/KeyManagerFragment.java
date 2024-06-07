@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.graduationproject.R;
 import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.exception.MyException;
-import com.example.graduationproject.ui.activities.LoginActivity;
 import com.example.graduationproject.ui.adapters.KeyAdapter;
 import com.example.graduationproject.utils.FileHelper;
 import com.example.graduationproject.utils.KeyToStoreHelper;
@@ -30,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KeyManagerFragment extends Fragment {
-    private Button btnGenKeyPair;
+    private Button btnGenKeyPair, btnRegisterKey;
     private RecyclerView recyclerView;
     private List<PublicKeyToStore> keyList;
     private final String PUBLIC_FILE_NAME = "public.dat";
@@ -53,6 +52,7 @@ public class KeyManagerFragment extends Fragment {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -61,6 +61,7 @@ public class KeyManagerFragment extends Fragment {
         btnGenKeyPair = view.findViewById(R.id.btnGenerateKey);
         setupRecyclerView();
         setupGenerateKeyPairButton();
+//        setupRegisterKeyButton();
         return view;
     }
 
@@ -140,8 +141,17 @@ public class KeyManagerFragment extends Fragment {
 
     private void updateRecyclerView() {
         Log.d("KeyManagerFragment", "updateing recycler view: " + keyList.size());
-        keyList = FileHelper.retrievePublicKeyFromFile(getActivity(), PUBLIC_FILE_NAME);
+        keyList = FileHelper.retrievePublicKeyFromFile(getActivity());
         KeyAdapter keyAdapter = (KeyAdapter) recyclerView.getAdapter();
         keyAdapter.updateKeyList(keyList);
+    }
+
+    private void setupRegisterKeyButton() {
+        btnRegisterKey.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Toast.makeText(v.getContext(), "register key", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

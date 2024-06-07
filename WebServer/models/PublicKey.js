@@ -10,7 +10,7 @@ const publicKeySchema = new mongoose.Schema({
     type: String,
     required: [true, 'require key uuid']
   },
-  dilithiumParameteresType: {
+  dilithiumParametersType: {
     type: String, 
     required: [true, 'require dilithium parameters type']
   },

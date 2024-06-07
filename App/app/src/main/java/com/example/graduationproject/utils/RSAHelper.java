@@ -4,6 +4,8 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
 
+import com.example.graduationproject.config.MyConstant;
+
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -13,9 +15,9 @@ import java.util.Enumeration;
 
 public class RSAHelper {
     private static KeyPair keyPair;
-    private static final String KEY_ALIAS = "graduation_rsa_key";
+    private static final String KEY_ALIAS = MyConstant.KEY_STORE_KEY_ALIAS;
 
-    private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
+    private static final String ANDROID_KEY_STORE = MyConstant.ANDROID_KEY_STORE;
 
     public static void generateKeyPair() {
         try {

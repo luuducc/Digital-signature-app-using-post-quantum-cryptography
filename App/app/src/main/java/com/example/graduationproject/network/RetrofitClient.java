@@ -4,11 +4,13 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static final String BASE_URL_AUTH = "http://192.168.1.196:5000";
-    private static final String BASE_URL_USER = "http://192.168.1.196:5000";
+    private static final String BASE_URL_AUTH = "http://172.16.113.96:5000";
+    private static final String BASE_URL_TRANSCRIPT = "http://172.16.113.96:5000";
+    private static final String BASE_URL_SIGNATURE = "http://172.16.113.96:5000";
 
     private static Retrofit retrofitAuth;
     private static Retrofit retrofitTranscript;
+    private static Retrofit retrofitSignature;
 
     public static Retrofit getAuthRetrofitInstance() {
         if (retrofitAuth == null) {
@@ -23,10 +25,19 @@ public class RetrofitClient {
     public static Retrofit getTranscriptRetrofitInstance() {
         if (retrofitTranscript == null) {
             retrofitTranscript = new Retrofit.Builder()
-                    .baseUrl(BASE_URL_USER)
+                    .baseUrl(BASE_URL_TRANSCRIPT)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
         return retrofitTranscript;
+    }
+    public static Retrofit getSignatureRetrofitInstance() {
+        if (retrofitSignature == null) {
+            retrofitSignature = new Retrofit.Builder()
+                    .baseUrl(BASE_URL_SIGNATURE)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        return retrofitSignature;
     }
 }

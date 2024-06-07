@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.config.MyConstant;
 import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.Transcript;
 import com.example.graduationproject.network.services.TranscriptApiService;
@@ -31,9 +32,7 @@ public class HomeActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private List<Transcript> transcripts;
     private List<PublicKeyToStore> retrievedPublicKeys;
-    private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
-    private final String PUBLIC_FILE_NAME = "public.dat";
-
+    private final String SHARED_PREFERENCES_NAME = MyConstant.SHARED_PREFERENCES_NAME;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,7 +78,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
     private void fetchKeysInKeyStore() {
-        retrievedPublicKeys = FileHelper.retrievePublicKeyFromFile(getApplicationContext(), PUBLIC_FILE_NAME);
+        retrievedPublicKeys = FileHelper.retrievePublicKeyFromFile(getApplicationContext());
     }
     private void setupViewPager() {
         ViewPagerAdapter adapter;

@@ -2,7 +2,9 @@ package com.example.graduationproject.utils;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.example.graduationproject.config.MyConstant;
 import com.example.graduationproject.data.local.KeyToStore;
 import com.example.graduationproject.data.local.PrivateKeyToStore;
 import com.example.graduationproject.data.local.PublicKeyToStore;
@@ -21,10 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileHelper {
-    public static <T extends KeyToStore> void writeJsonKeyToFile(T key, Context context, String fileName) throws MyException {
+    private static final String PRIVATE_FILE_NAME = MyConstant.PRIVATE_FILE_NAME;
+    private static final String PUBLIC_FILE_NAME = MyConstant.PUBLIC_FILE_NAME;
+    public static <T extends KeyToStore> void writeJsonKeyToFile(T key, Context context) throws MyException {
+        boolean isPrivate = key instanceof PrivateKeyToStore;
+        final String fileName;
+        if (isPrivate) {
+            fileName = PRIVATE_FILE_NAME;
+        } else {
+            fileName = PUBLIC_FILE_NAME;
+        }
         List<T> keyList = retrieveKeyFromFile(context, fileName, TypeToken.getParameterized(List.class, key.getClass()).getType());
 
-        boolean isPrivate = key instanceof PrivateKeyToStore;
 
         File file = new File(context.getFilesDir(), fileName);
 
@@ -132,10 +142,44 @@ public class FileHelper {
             throw new RuntimeException("failed to retrieve key",e);
         }
     }
-    public static List<PrivateKeyToStore> retrievePrivateKeyFromFile(Context context, String fileName) {
-        return retrieveKeyFromFile(context, fileName, new TypeToken<List<PrivateKeyToStore>>() {}.getType());
+    public static List<PrivateKeyToStore> retrievePrivateKeyFromFile(Context context) {
+        return retrieveKeyFromFile(context, PRIVATE_FILE_NAME, new TypeToken<List<PrivateKeyToStore>>() {}.getType());
     }
-    public static List<PublicKeyToStore> retrievePublicKeyFromFile(Context context, String fileName) {
-        return retrieveKeyFromFile(context, fileName, new TypeToken<List<PublicKeyToStore>>() {}.getType());
+    public static List<PublicKeyToStore> retrievePublicKeyFromFile(Context context) {
+        return retrieveKeyFromFile(context, PUBLIC_FILE_NAME, new TypeToken<List<PublicKeyToStore>>() {}.getType());
+    }
+
+    public static void updateIsRegisteredField(PublicKeyToStore updatedKey, Context context) {
+        List<PublicKeyToStore> retrievedPublicKeys = retrievePublicKeyFromFile(context);
+        File file = new File(context.getFilesDir(), PUBLIC_FILE_NAME);
+        boolean isUpdated = true;
+
+        // update key list in keystore
+        for (PublicKeyToStore key : retrievedPublicKeys) {
+            if (updatedKey.getUuid().equals(key.getUuid())) {
+                key.setRegistered(updatedKey.isRegistered());
+                break;
+            }
+        }
+        if (file.exists()) {
+            file.delete();
+        }
+
+        // write again the updated key list to file
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file, false);
+            OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+            Gson gson = new GsonBuilder()
+                    .setPrettyPrinting().create();
+            String jsonKeyString = gson.toJson(retrievedPublicKeys);
+            writer.write(jsonKeyString);
+            writer.write("\n");
+            writer.close();
+            outputStream.flush();
+            outputStream.close();
+        } catch (Exception e){
+            throw new RuntimeException("failed to update registered field");
+        }
+
     }
 }

@@ -5,9 +5,9 @@ const savePublicKey = async (req, res) => {
     const userId = req.user._id
     const newPublicKey = await PublicKey.create({ user: userId, ...req.body})
     // assign isRegistered field to response
-    res.json({ ...newPublicKey.toObject(), isRegistered: true})
+    res.status(200).json({ ...newPublicKey.toObject(), isRegistered: true})
   } catch (error) {
-    res.json(error.message)
+    res.status(500).json({ error: error.message })
   }
 }
 

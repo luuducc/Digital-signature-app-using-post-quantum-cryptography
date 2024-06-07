@@ -21,10 +21,10 @@ public class TestFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_key_manager, container, false);
+        View view = inflater.inflate(R.layout.key_row, container, false);
 
         // Initialize the button
-        btnSayHello = view.findViewById(R.id.btnGenerateKey);
+        btnSayHello = view.findViewById(R.id.btnRegisterKey);
 
         // Set click listener for the button
         btnSayHello.setOnClickListener(new View.OnClickListener() {
