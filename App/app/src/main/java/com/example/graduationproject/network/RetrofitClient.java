@@ -1,12 +1,12 @@
 package com.example.graduationproject.network;
 
+import com.example.graduationproject.config.MyConstant;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static final String BASE_URL_AUTH = "http://172.16.113.96:5000";
-    private static final String BASE_URL_TRANSCRIPT = "http://172.16.113.96:5000";
-    private static final String BASE_URL_SIGNATURE = "http://172.16.113.96:5000";
+    private static final String BASE_URL = MyConstant.DOMAIN;
 
     private static Retrofit retrofitAuth;
     private static Retrofit retrofitTranscript;
@@ -15,7 +15,7 @@ public class RetrofitClient {
     public static Retrofit getAuthRetrofitInstance() {
         if (retrofitAuth == null) {
             retrofitAuth = new Retrofit.Builder()
-                    .baseUrl(BASE_URL_AUTH)
+                    .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
@@ -25,7 +25,7 @@ public class RetrofitClient {
     public static Retrofit getTranscriptRetrofitInstance() {
         if (retrofitTranscript == null) {
             retrofitTranscript = new Retrofit.Builder()
-                    .baseUrl(BASE_URL_TRANSCRIPT)
+                    .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
@@ -34,7 +34,7 @@ public class RetrofitClient {
     public static Retrofit getSignatureRetrofitInstance() {
         if (retrofitSignature == null) {
             retrofitSignature = new Retrofit.Builder()
-                    .baseUrl(BASE_URL_SIGNATURE)
+                    .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }

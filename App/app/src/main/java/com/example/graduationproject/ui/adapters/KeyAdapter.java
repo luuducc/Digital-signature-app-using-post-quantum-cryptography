@@ -2,6 +2,7 @@ package com.example.graduationproject.ui.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,15 +16,29 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.config.MyConstant;
+import com.example.graduationproject.data.local.PrivateKeyToStore;
 import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.RegisterKeyRequest;
 import com.example.graduationproject.data.remote.RegisterKeyResponse;
 import com.example.graduationproject.network.services.SignatureApiService;
+import com.example.graduationproject.utils.DilithiumHelper;
 import com.example.graduationproject.utils.FileHelper;
+import com.example.graduationproject.utils.RSADecryptor;
+import com.example.graduationproject.utils.RSAHelper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPrivateKeyParameters;
+import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPublicKeyParameters;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,11 +81,19 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
         holder.keyParaType.setText("Type: " + key.getDilithiumParametersType());
         ConstraintLayout expandedLayout = holder.expandedLayout;
         Button registerButton = holder.btnRegister;
+        Button extractButton = holder.btnExtract;
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sendRegisterKeyRequest(key.getUuid().toString(), key.getDilithiumParametersType(), key.getPublicKeyString());
+            }
+        });
+        extractButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Toast.makeText(v.getContext(), "extract", Toast.LENGTH_SHORT).show();
+                extractPrivateKey(key.getUuid().toString());
             }
         });
         holder.rowLayout.setOnClickListener(new View.OnClickListener() {
@@ -81,10 +104,8 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
                 } else {
                     expandedLayout.setVisibility(View.GONE);
                 }
-
             }
         });
-
     }
 
     @Override
@@ -113,7 +134,6 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
             expandedLayout = itemView.findViewById(R.id.expandedLayout);
         }
     }
-
     private void sendRegisterKeyRequest(String uuid, String paraType, String keyString) {
         Log.d("KeyAdapter", uuid + " " + paraType + " " + keyString);
         SignatureApiService signatureApiService = SignatureApiService.getInstance();
@@ -151,7 +171,7 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
             }
         });
     }
-    public void updateKeyRegistrationStatus(String uuid, boolean isRegistered) {
+    private void updateKeyRegistrationStatus(String uuid, boolean isRegistered) {
         for (PublicKeyToStore key : keyList) {
             if (key.getUuid().toString().equals(uuid)) {
                 key.setRegistered(isRegistered);
@@ -165,6 +185,53 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
                 Log.d("KeyAdapter", "updated key");
                 break;
             }
+        }
+    }
+    private void extractPrivateKey(String uuid) {
+        List<PrivateKeyToStore> retrievedPrivateKeys = FileHelper.retrievePrivateKeyFromFile(context);
+        PrivateKeyToStore returnedPrivateKey = null;
+
+        for (PrivateKeyToStore privateKey : retrievedPrivateKeys) {
+            if (privateKey.getUuid().toString().equals(uuid)) {
+                returnedPrivateKey = privateKey;
+                break;
+            }
+        }
+        byte[] encryptedPrivateKeyByte = returnedPrivateKey.getEncryptedPrivateKey();
+
+        // get the initial dilithium private key
+        byte[] initialDilithiumKey = RSADecryptor.decryptData(encryptedPrivateKeyByte, RSAHelper.getPrivateKey());
+
+        // get the string value
+        String initialDilithiumKeyString = Base64.getEncoder().encodeToString(initialDilithiumKey);
+
+        String extractedKeyPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
+        final String fileName = returnedPrivateKey.getKeyAlias() + "_" + MyConstant.EXTRACTED_PRIVATE_KEY_FILE_NAME;
+        File file = new File(extractedKeyPath, fileName);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file, false);
+            OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+
+            // write PEM format
+            writer.write("-----BEGIN DILITHIUM PRIVATE KEY-----\n");
+            int index = 0;
+            while (index < initialDilithiumKeyString.length()) {
+                writer.write(initialDilithiumKeyString.substring(index, Math.min(index + 64, initialDilithiumKeyString.length())));
+                writer.write("\n");
+                index += 64;
+            }
+            writer.write("-----END DILITHIUM PRIVATE KEY-----");
+
+            // close file
+            writer.close();
+            outputStream.flush();
+            outputStream.close();
+            Toast.makeText(context, "Extracted " + returnedPrivateKey.getKeyAlias() + " successfully" , Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            throw new RuntimeException("failed to write extracted key file", e);
         }
     }
 }
