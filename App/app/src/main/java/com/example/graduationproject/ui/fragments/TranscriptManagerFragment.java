@@ -111,7 +111,7 @@ public class TranscriptManagerFragment extends Fragment {
                 // require read/write file permission
                 RequirePermission.verifyStoragePermissions(getActivity());
                 try {
-                    CreatePDF.createPdf(v.getContext(), studentGradeList, className);
+                    CreatePDF.createPdf(studentGradeList, className);
                     Toast.makeText(v.getContext(), "Created PDF for class: " + className, Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
                     Toast.makeText(v.getContext(), "Failed to create PDF", Toast.LENGTH_LONG).show();

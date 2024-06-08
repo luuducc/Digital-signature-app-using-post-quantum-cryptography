@@ -20,7 +20,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class CreatePDF {
-    public static void createPdf(Context context, List<Transcript.StudentGrade> studentGradeList, String className) throws IOException {
+    public static void createPdf(List<Transcript.StudentGrade> studentGradeList, String className) throws IOException {
         String pdfFolderPath = MyConstant.GRADUATION_PROJECT_FOLDER + "/Transcripts";
         File customFolder = new File(pdfFolderPath);
         // create pdf folder if not exist
