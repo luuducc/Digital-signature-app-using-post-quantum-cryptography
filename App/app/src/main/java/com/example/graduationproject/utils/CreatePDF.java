@@ -1,24 +1,16 @@
 package com.example.graduationproject.utils;
 
 import android.content.Context;
-import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.example.graduationproject.TranscriptData;
 import com.example.graduationproject.config.MyConstant;
 import com.example.graduationproject.data.remote.Transcript;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.StampingProperties;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.TextAlignment;
-import com.itextpdf.layout.properties.UnitValue;
 
 
 import java.io.File;

@@ -1,7 +1,5 @@
 package com.example.graduationproject.data.remote;
 
-import com.example.graduationproject.TranscriptData;
-
 import java.util.List;
 
 public class Transcript {
