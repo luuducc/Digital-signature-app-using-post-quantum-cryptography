@@ -2,6 +2,7 @@ package com.example.graduationproject.ui.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.util.Log;
@@ -23,6 +24,8 @@ import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.RegisterKeyRequest;
 import com.example.graduationproject.data.remote.RegisterKeyResponse;
 import com.example.graduationproject.network.services.SignatureApiService;
+import com.example.graduationproject.ui.activities.HomeActivity;
+import com.example.graduationproject.ui.activities.LoginActivity;
 import com.example.graduationproject.utils.AuthenticateFingerprint;
 import com.example.graduationproject.utils.FileHelper;
 import com.example.graduationproject.utils.RSADecryptor;
@@ -163,6 +166,14 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
                         Log.d("KeyAdapter", response.errorBody().string()); // actual server response message
                     } catch (IOException e) {
                         throw new RuntimeException(e);
+                    }
+                    if (response.code() == 403) { // token is not valid
+                        // delete old access token and navigate to login screen
+                        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences .edit();
+                        editor.remove("accessToken");
+                        editor.apply();
+                        ((HomeActivity) context).navigateToLoginScreen();
                     }
                 }
             }

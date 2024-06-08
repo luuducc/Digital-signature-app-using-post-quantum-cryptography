@@ -42,10 +42,10 @@ public class HomeActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
 
-        if (!isUserLoggedIn()) {
-            navigateToLoginScreen();
-            return;
-        }
+//        if (!isUserLoggedIn()) {
+//            navigateToLoginScreen();
+//            return;
+//        }
 
         fetchKeysInKeyStore();
         fetchTranscripts();
@@ -69,8 +69,14 @@ public class HomeActivity extends AppCompatActivity {
                     setupViewPager();
                 } else {
                     try {
+                        // delete old access token and navigate to login screen
+                        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences .edit();
+                        editor.remove("accessToken");
+                        editor.apply();
                         Log.d("MyHomeActivity", response.message()); // http status message
                         Log.d("MyHomeActivity", response.errorBody().string()); // actual server response message
+                        navigateToLoginScreen();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -116,7 +122,7 @@ public class HomeActivity extends AppCompatActivity {
         return accessToken != null && !accessToken.isEmpty();
     }
 
-    private void navigateToLoginScreen() {
+    public void navigateToLoginScreen() {
         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
         startActivity(intent);
         finish(); // Optional: Close the HomeActivity

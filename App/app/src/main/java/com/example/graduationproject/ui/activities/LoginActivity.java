@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.config.MyConstant;
 import com.example.graduationproject.data.remote.LoginRequest;
 import com.example.graduationproject.data.remote.LoginResponse;
 import com.example.graduationproject.network.services.AuthApiService;
@@ -25,7 +26,7 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
     private EditText etEmail, etPassword;
     private Button btnLogin;
-    private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
+    private final String SHARED_PREFERENCES_NAME = MyConstant.SHARED_PREFERENCES_NAME;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
