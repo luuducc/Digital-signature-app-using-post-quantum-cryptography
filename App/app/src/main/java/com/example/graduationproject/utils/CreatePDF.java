@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.graduationproject.TranscriptData;
+import com.example.graduationproject.config.MyConstant;
 import com.example.graduationproject.data.remote.Transcript;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -28,8 +29,15 @@ import java.util.List;
 
 public class CreatePDF {
     public static void createPdf(Context context, List<Transcript.StudentGrade> studentGradeList, String className) throws IOException {
-        String pdfPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
-        File file = new File(pdfPath,className + ".pdf");
+        String pdfFolderPath = MyConstant.GRADUATION_PROJECT_FOLDER + "/Transcripts";
+        File customFolder = new File(pdfFolderPath);
+        // create pdf folder if not exist
+        if (!customFolder.exists()) {
+            customFolder.mkdirs();
+        }
+
+        // create file to store pdf transcript
+        File file = new File(pdfFolderPath,className + ".pdf");
         if(file.exists()) {
             file.delete();
         }

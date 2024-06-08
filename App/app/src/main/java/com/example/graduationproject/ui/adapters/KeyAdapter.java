@@ -1,5 +1,6 @@
 package com.example.graduationproject.ui.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
@@ -12,7 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
@@ -22,10 +27,12 @@ import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.RegisterKeyRequest;
 import com.example.graduationproject.data.remote.RegisterKeyResponse;
 import com.example.graduationproject.network.services.SignatureApiService;
+import com.example.graduationproject.ui.activities.HomeActivity;
 import com.example.graduationproject.utils.DilithiumHelper;
 import com.example.graduationproject.utils.FileHelper;
 import com.example.graduationproject.utils.RSADecryptor;
 import com.example.graduationproject.utils.RSAHelper;
+import com.example.graduationproject.utils.RequirePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -41,6 +48,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -86,14 +94,18 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendRegisterKeyRequest(key.getUuid().toString(), key.getDilithiumParametersType(), key.getPublicKeyString());
+                authenticateAndSendRegisterKeyRequest(
+                        key.getUuid().toString(),
+                        key.getDilithiumParametersType(),
+                        key.getPublicKeyString()
+                );
+//                sendRegisterKeyRequest(key.getUuid().toString(), key.getDilithiumParametersType(), key.getPublicKeyString());
             }
         });
         extractButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Toast.makeText(v.getContext(), "extract", Toast.LENGTH_SHORT).show();
-                extractPrivateKey(key.getUuid().toString());
+                authenticateAndExtract(key.getUuid().toString());
             }
         });
         holder.rowLayout.setOnClickListener(new View.OnClickListener() {
@@ -147,6 +159,7 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
             public void onResponse(Call<RegisterKeyResponse> call, Response<RegisterKeyResponse> response) {
                 if (response.isSuccessful()) {
                     RegisterKeyResponse keyResponse = response.body();
+                    // update the ui
                     updateKeyRegistrationStatus(keyResponse.get_id(), keyResponse.isRegistered());
                     Toast.makeText(context, "Register key successfully", Toast.LENGTH_SHORT).show();
                 } else {
@@ -188,6 +201,8 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
         }
     }
     private void extractPrivateKey(String uuid) {
+        // require read/write file permission
+        RequirePermission.verifyStoragePermissions((Activity) context);
         List<PrivateKeyToStore> retrievedPrivateKeys = FileHelper.retrievePrivateKeyFromFile(context);
         PrivateKeyToStore returnedPrivateKey = null;
 
@@ -205,9 +220,16 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
         // get the string value
         String initialDilithiumKeyString = Base64.getEncoder().encodeToString(initialDilithiumKey);
 
-        String extractedKeyPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
-        final String fileName = returnedPrivateKey.getKeyAlias() + "_" + MyConstant.EXTRACTED_PRIVATE_KEY_FILE_NAME;
-        File file = new File(extractedKeyPath, fileName);
+        String extractedKeyFolderPath = MyConstant.GRADUATION_PROJECT_FOLDER + "/Private Key";
+        File customFolder = new File(extractedKeyFolderPath);
+        // create private key folder if not exist
+        if (!customFolder.exists()) {
+            customFolder.mkdirs();
+        }
+
+        String fileName = returnedPrivateKey.getKeyAlias() + "_" + MyConstant.EXTRACTED_PRIVATE_KEY_FILE_NAME;
+        // create file to store private key
+        File file = new File(extractedKeyFolderPath, fileName);
         if (file.exists()) {
             file.delete();
         }
@@ -231,7 +253,68 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
             outputStream.close();
             Toast.makeText(context, "Extracted " + returnedPrivateKey.getKeyAlias() + " successfully" , Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            throw new RuntimeException("failed to write extracted key file", e);
+            Toast.makeText(context, "Failed to extract: " + returnedPrivateKey.getKeyAlias() + " key" , Toast.LENGTH_SHORT).show();
+            Log.d("KeyAdapter", e.toString());
+            e.printStackTrace();
         }
+    }
+    private void authenticateAndExtract(String uuid) {
+        Executor executor = ContextCompat.getMainExecutor(context);
+        BiometricPrompt biometricPrompt = new BiometricPrompt((HomeActivity) context, executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+//                Toast.makeText(context, "Authentication error: " + errString, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+//                Toast.makeText(context, "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+                extractPrivateKey(uuid);
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+//                Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric authentication")
+                .setSubtitle("Authenticate to extract the key")
+                .setNegativeButtonText("Cancel")
+                .build();
+
+        biometricPrompt.authenticate(promptInfo);
+    }
+    private void authenticateAndSendRegisterKeyRequest(String uuid, String paraType, String keyString) {
+        Executor executor = ContextCompat.getMainExecutor(context);
+        BiometricPrompt biometricPrompt = new BiometricPrompt((HomeActivity) context, executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                sendRegisterKeyRequest(uuid, paraType, keyString);
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+            }
+        });
+
+        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric authentication")
+                .setSubtitle("Authenticate to register key")
+                .setNegativeButtonText("Cancel")
+                .build();
+
+        biometricPrompt.authenticate(promptInfo);
     }
 }

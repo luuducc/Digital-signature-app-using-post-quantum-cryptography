@@ -20,6 +20,7 @@ import com.example.graduationproject.R;
 import com.example.graduationproject.data.remote.Transcript;
 import com.example.graduationproject.ui.adapters.TranscriptAdapter;
 import com.example.graduationproject.utils.CreatePDF;
+import com.example.graduationproject.utils.RequirePermission;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -106,6 +107,9 @@ public class TranscriptManagerFragment extends Fragment {
                 String className = spinner.getSelectedItem().toString();
                 TranscriptAdapter adapter = (TranscriptAdapter) recyclerView.getAdapter();
                 List<Transcript.StudentGrade> studentGradeList = adapter.getDataList();
+
+                // require read/write file permission
+                RequirePermission.verifyStoragePermissions(getActivity());
                 try {
                     CreatePDF.createPdf(v.getContext(), studentGradeList, className);
                     Toast.makeText(v.getContext(), "Created PDF for class: " + className, Toast.LENGTH_LONG).show();

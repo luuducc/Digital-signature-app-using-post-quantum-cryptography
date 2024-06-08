@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.graduationproject"
-        minSdk = 34
+        minSdk = 29
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -46,5 +46,7 @@ dependencies {
     implementation("com.itextpdf:itext7-core:8.0.4")
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
     implementation("org.bouncycastle:bcprov-jdk18on:1.77")
+    // https://mvnrepository.com/artifact/androidx.biometric/biometric
+    implementation("androidx.biometric:biometric:1.0.1")
 
 }
