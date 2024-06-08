@@ -36,6 +36,8 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
 
+        // if access token still valid => navigate directly to home screen without login
+        checkAccessTokenAndNavigate();
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,4 +87,13 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+    private void checkAccessTokenAndNavigate() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
+        String accessToken = sharedPreferences.getString("accessToken", null);
+
+        if (accessToken != null && !accessToken.isEmpty()) {
+            navigateToMainScreen();
+        }
+    }
+
 }

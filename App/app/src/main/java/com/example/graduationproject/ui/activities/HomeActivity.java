@@ -1,6 +1,7 @@
 package com.example.graduationproject.ui.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +41,11 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
+
+        if (!isUserLoggedIn()) {
+            navigateToLoginScreen();
+            return;
+        }
 
         fetchKeysInKeyStore();
         fetchTranscripts();
@@ -101,5 +107,18 @@ public class HomeActivity extends AppCompatActivity {
     }
     public List<Transcript> getTranscripts() {
         return this.transcripts;
+    }
+    private boolean isUserLoggedIn() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
+        String accessToken = sharedPreferences.getString("accessToken", null);
+
+        // Check if accessToken is valid (e.g., not expired, not empty)
+        return accessToken != null && !accessToken.isEmpty();
+    }
+
+    private void navigateToLoginScreen() {
+        Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish(); // Optional: Close the HomeActivity
     }
 }
