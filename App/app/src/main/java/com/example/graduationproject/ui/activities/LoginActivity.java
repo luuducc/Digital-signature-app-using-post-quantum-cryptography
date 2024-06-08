@@ -39,40 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = etEmail.getText().toString();
-                String password = etPassword.getText().toString();
-
-                AuthApiService authApiService = AuthApiService.getInstance();
-                LoginRequest loginRequest = new LoginRequest(email, password);
-
-                authApiService.login(loginRequest).enqueue(new Callback<LoginResponse>() {
-                    @Override
-                    public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                        if (response.isSuccessful()) {
-                            LoginResponse loginResponse = response.body();
-                            Toast.makeText(LoginActivity.this, "Hello " + loginResponse.getUsername(), Toast.LENGTH_SHORT).show();
-
-                            // Store access token and user id to SharedPreferences
-                            SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sharedPreferences .edit();
-                            editor.putString("accessToken", loginResponse.getAccessToken());
-                            editor.putString("userId", loginResponse.get_id());
-                            editor.apply();
-
-                            navigateToMainScreen();
-                        } else {
-                            Toast.makeText(LoginActivity.this,"Failed to login", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<LoginResponse> call, Throwable throwable) {
-                        Toast.makeText(LoginActivity.this,"Server error", Toast.LENGTH_SHORT).show();
-                        Log.e("LoginActivity", "Server error", throwable);
-                        // Print the error message to the console
-                        throwable.printStackTrace();;
-                    }
-                });
+                sendLoginRequestAndNavigateToMainScreen();
             }
         });
     }
@@ -81,5 +48,41 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
         startActivity(intent);
         finish(); // Optional: Close the LoginActivity
+    }
+    private void sendLoginRequestAndNavigateToMainScreen() {
+        String email = etEmail.getText().toString();
+        String password = etPassword.getText().toString();
+
+        AuthApiService authApiService = AuthApiService.getInstance();
+        LoginRequest loginRequest = new LoginRequest(email, password);
+
+        authApiService.login(loginRequest).enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if (response.isSuccessful()) {
+                    LoginResponse loginResponse = response.body();
+                    Toast.makeText(LoginActivity.this, "Hello " + loginResponse.getUsername(), Toast.LENGTH_SHORT).show();
+
+                    // Store access token and user id to SharedPreferences
+                    SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences .edit();
+                    editor.putString("accessToken", loginResponse.getAccessToken());
+                    editor.putString("userId", loginResponse.get_id());
+                    editor.apply();
+
+                    navigateToMainScreen();
+                } else {
+                    Toast.makeText(LoginActivity.this,"Failed to login", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable throwable) {
+                Toast.makeText(LoginActivity.this,"Server error", Toast.LENGTH_SHORT).show();
+                Log.e("LoginActivity", "Server error", throwable);
+                // Print the error message to the console
+                throwable.printStackTrace();;
+            }
+        });
     }
 }
