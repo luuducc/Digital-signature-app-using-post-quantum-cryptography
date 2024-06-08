@@ -22,6 +22,7 @@ import com.example.graduationproject.R;
 import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.exception.MyException;
 import com.example.graduationproject.ui.adapters.KeyAdapter;
+import com.example.graduationproject.utils.AuthenticateFingerprint;
 import com.example.graduationproject.utils.FileHelper;
 import com.example.graduationproject.utils.KeyToStoreHelper;
 
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KeyManagerFragment extends Fragment {
-    private Button btnGenKeyPair, btnRegisterKey;
+    private Button btnGenKeyPair;
     private RecyclerView recyclerView;
     private List<PublicKeyToStore> keyList;
     private final String PUBLIC_FILE_NAME = "public.dat";
@@ -78,7 +79,10 @@ public class KeyManagerFragment extends Fragment {
         btnGenKeyPair.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showGenKeyPopup();
+                AuthenticateFingerprint.authenticate(
+                        getContext(),
+                        () -> showGenKeyPopup(),
+                        "Authenticate to generate key pair");
             }
         });
     };
@@ -138,20 +142,10 @@ public class KeyManagerFragment extends Fragment {
         });
         dialog.show();
     }
-
     private void updateRecyclerView() {
         Log.d("KeyManagerFragment", "updateing recycler view: " + keyList.size());
         keyList = FileHelper.retrievePublicKeyFromFile(getActivity());
         KeyAdapter keyAdapter = (KeyAdapter) recyclerView.getAdapter();
         keyAdapter.updateKeyList(keyList);
-    }
-
-    private void setupRegisterKeyButton() {
-        btnRegisterKey.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                Toast.makeText(v.getContext(), "register key", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 }

@@ -13,11 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
@@ -27,28 +23,20 @@ import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.RegisterKeyRequest;
 import com.example.graduationproject.data.remote.RegisterKeyResponse;
 import com.example.graduationproject.network.services.SignatureApiService;
-import com.example.graduationproject.ui.activities.HomeActivity;
-import com.example.graduationproject.utils.DilithiumHelper;
+import com.example.graduationproject.utils.AuthenticateFingerprint;
 import com.example.graduationproject.utils.FileHelper;
 import com.example.graduationproject.utils.RSADecryptor;
 import com.example.graduationproject.utils.RSAHelper;
 import com.example.graduationproject.utils.RequirePermission;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPrivateKeyParameters;
-import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPublicKeyParameters;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -94,18 +82,24 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                authenticateAndSendRegisterKeyRequest(
-                        key.getUuid().toString(),
-                        key.getDilithiumParametersType(),
-                        key.getPublicKeyString()
+                AuthenticateFingerprint.authenticate(
+                        context,
+                        () -> sendRegisterKeyRequest(
+                                key.getUuid().toString(),
+                                key.getDilithiumParametersType(),
+                                key.getPublicKeyString()),
+                        "Authenticate to register key"
                 );
-//                sendRegisterKeyRequest(key.getUuid().toString(), key.getDilithiumParametersType(), key.getPublicKeyString());
             }
         });
         extractButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                authenticateAndExtract(key.getUuid().toString());
+                AuthenticateFingerprint.authenticate(
+                        context,
+                        () -> extractPrivateKey(key.getUuid().toString()),
+                        "Authenticate to extract key"
+                );
             }
         });
         holder.rowLayout.setOnClickListener(new View.OnClickListener() {
@@ -257,64 +251,5 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
             Log.d("KeyAdapter", e.toString());
             e.printStackTrace();
         }
-    }
-    private void authenticateAndExtract(String uuid) {
-        Executor executor = ContextCompat.getMainExecutor(context);
-        BiometricPrompt biometricPrompt = new BiometricPrompt((HomeActivity) context, executor, new BiometricPrompt.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                super.onAuthenticationError(errorCode, errString);
-//                Toast.makeText(context, "Authentication error: " + errString, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                super.onAuthenticationSucceeded(result);
-//                Toast.makeText(context, "Authentication succeeded!", Toast.LENGTH_SHORT).show();
-                extractPrivateKey(uuid);
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                super.onAuthenticationFailed();
-//                Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Biometric authentication")
-                .setSubtitle("Authenticate to extract the key")
-                .setNegativeButtonText("Cancel")
-                .build();
-
-        biometricPrompt.authenticate(promptInfo);
-    }
-    private void authenticateAndSendRegisterKeyRequest(String uuid, String paraType, String keyString) {
-        Executor executor = ContextCompat.getMainExecutor(context);
-        BiometricPrompt biometricPrompt = new BiometricPrompt((HomeActivity) context, executor, new BiometricPrompt.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                super.onAuthenticationError(errorCode, errString);
-            }
-
-            @Override
-            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                super.onAuthenticationSucceeded(result);
-                sendRegisterKeyRequest(uuid, paraType, keyString);
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                super.onAuthenticationFailed();
-            }
-        });
-
-        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Biometric authentication")
-                .setSubtitle("Authenticate to register key")
-                .setNegativeButtonText("Cancel")
-                .build();
-
-        biometricPrompt.authenticate(promptInfo);
     }
 }
