@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Header Section -->
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign Options"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:paddingBottom="16dp" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+
+    <!-- Options Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingVertical="16dp">
+
+        <Button
+            android:id="@+id/btnSignJson"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sign Json"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnSignPdf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sign PDF"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnSignAll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sign All" />
+    </LinearLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+
+    <!-- OK Button Section -->
+    <Button
+        android:id="@+id/btnOk"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>

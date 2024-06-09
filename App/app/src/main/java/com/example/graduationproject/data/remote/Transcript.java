@@ -6,6 +6,7 @@ public class Transcript {
     private String _id;
     private String className;
     private List<Transcript.StudentGrade> studentGrades;
+    private boolean isSigned = false;
 
     public String getClassName() {
         return className;
@@ -27,7 +28,14 @@ public class Transcript {
         this._id = _id;
     }
 
-//    public void setStudentGrades(List<TranscriptData.studentGrades> studentGrades) {
+    public boolean isSigned() {
+        return isSigned;
+    }
+
+    public void setSign(boolean sign) {
+        isSigned = sign;
+    }
+    //    public void setStudentGrades(List<TranscriptData.studentGrades> studentGrades) {
 //        this.studentGrades = studentGrades;
 //    }
 
@@ -35,7 +43,6 @@ public class Transcript {
         private String studentId;
         private String name;
         private float grade;
-        private int __v;
 
         public String getStudentId() {
             return studentId;
@@ -68,12 +75,5 @@ public class Transcript {
             this.grade = grade;
         }
 
-        public int get__v() {
-            return __v;
-        }
-
-        public void set__v(int __v) {
-            this.__v = __v;
-        }
     }
 }

@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KeyManagerFragment extends Fragment {
-    private Button btnGenKeyPair;
+    private Button btnGenKeyPair, btnSign;
     private RecyclerView recyclerView;
     private List<PublicKeyToStore> keyList;
     private final String PUBLIC_FILE_NAME = "public.dat";
@@ -60,9 +60,9 @@ public class KeyManagerFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_key_manager, container, false);
         recyclerView = view.findViewById(R.id.key_recycler_view);
         btnGenKeyPair = view.findViewById(R.id.btnGenerateKey);
+        btnSign = view.findViewById(R.id.btnSign);
         setupRecyclerView();
         setupGenerateKeyPairButton();
-//        setupRegisterKeyButton();
         return view;
     }
 
@@ -93,7 +93,7 @@ public class KeyManagerFragment extends Fragment {
             return; // Fragment not attached, cannot show dialog
         }
         LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View popupView = inflater.inflate(R.layout.genkey_popup, null);
+        View popupView = inflater.inflate(R.layout.popup_genkey, null);
 
         // create the popup window
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
