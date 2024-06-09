@@ -28,6 +28,7 @@ import com.example.graduationproject.ui.activities.HomeActivity;
 import com.example.graduationproject.ui.activities.LoginActivity;
 import com.example.graduationproject.utils.AuthenticateFingerprint;
 import com.example.graduationproject.utils.FileHelper;
+import com.example.graduationproject.utils.OnKeyItemClickListener;
 import com.example.graduationproject.utils.RSADecryptor;
 import com.example.graduationproject.utils.RSAHelper;
 import com.example.graduationproject.utils.RequirePermission;
@@ -51,14 +52,18 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
     List<Boolean> expandedStates;
     private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
     private final int recyclerViewType;
+    private OnKeyItemClickListener keyItemClickListener;
     public static final int MODE_SHOW = 1;
     public static final int MODE_SIGN = 2;
 
-    public KeyAdapter(Context context, List<PublicKeyToStore> keyList, int recyclerViewType) {
+    public KeyAdapter(
+            Context context, List<PublicKeyToStore> keyList,
+            int recyclerViewType, OnKeyItemClickListener listener) {
         this.context = context;
         this.keyList = keyList;
         this.expandedStates = new ArrayList<>(Collections.nCopies(keyList == null ? 0 : keyList.size(), false));
         this.recyclerViewType = recyclerViewType;
+        this.keyItemClickListener = listener;
     }
 
     public List<PublicKeyToStore> getKeyList() {
@@ -126,7 +131,9 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
                 holder.rowLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(context, key.getKeyAlias(), Toast.LENGTH_SHORT).show();
+                        if (keyItemClickListener != null) {
+                            keyItemClickListener.onKeyItemClick(key);
+                        }
                     }
                 });
             }

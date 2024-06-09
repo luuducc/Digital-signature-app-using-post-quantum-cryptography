@@ -2,6 +2,8 @@ package com.example.graduationproject.network.services;
 
 import com.example.graduationproject.data.remote.RegisterKeyRequest;
 import com.example.graduationproject.data.remote.RegisterKeyResponse;
+import com.example.graduationproject.data.remote.VerifyRequest;
+import com.example.graduationproject.data.remote.VerifyResponse;
 import com.example.graduationproject.network.RetrofitClient;
 import com.example.graduationproject.network.api.SignatureApiInterface;
 
@@ -22,5 +24,9 @@ public class SignatureApiService {
 
     public Call<RegisterKeyResponse> registerKey(String userId, String accessToken, RegisterKeyRequest keyRequest) {
         return apiInterface.registerKey(userId, accessToken, keyRequest);
+    }
+
+    public Call<VerifyResponse> verifyTranscript(String userId, String accessToken, VerifyRequest verifyRequest) {
+        return apiInterface.verifyTranscript(userId, accessToken, verifyRequest);
     }
 }

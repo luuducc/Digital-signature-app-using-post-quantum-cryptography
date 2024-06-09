@@ -1,6 +1,7 @@
 package com.example.graduationproject.ui.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -24,20 +25,36 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.data.local.PrivateKeyToStore;
 import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.Transcript;
+import com.example.graduationproject.data.remote.VerifyRequest;
+import com.example.graduationproject.data.remote.VerifyResponse;
+import com.example.graduationproject.network.services.SignatureApiService;
+import com.example.graduationproject.ui.activities.HomeActivity;
 import com.example.graduationproject.ui.adapters.KeyAdapter;
 import com.example.graduationproject.ui.adapters.TranscriptAdapter;
 import com.example.graduationproject.utils.CreatePDF;
 import com.example.graduationproject.utils.DilithiumHelper;
 import com.example.graduationproject.utils.FileHelper;
+import com.example.graduationproject.utils.RSADecryptor;
+import com.example.graduationproject.utils.RSAHelper;
 import com.example.graduationproject.utils.RequirePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPrivateKeyParameters;
+import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPublicKeyParameters;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class TranscriptManagerFragment extends Fragment {
     private Button btnCreatePdf, btnSign;
@@ -45,6 +62,7 @@ public class TranscriptManagerFragment extends Fragment {
     private TextView isSigned;
     private RecyclerView recyclerView;
     private List<Transcript> transcripts;
+    private Transcript selectedTranscript;
     private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
 
     // allow the fragment to fetch data and display
@@ -102,6 +120,9 @@ public class TranscriptManagerFragment extends Fragment {
                 String selectedClassName = classNames.get(position);
                 for (Transcript transcript : transcripts) {
                     if (transcript.getClassName().equals(selectedClassName)) {
+                        // assign the selected transcript
+                        selectedTranscript = transcript;
+
                         isSigned.setText("Signed: " + transcript.isSigned());
                         List<Transcript.StudentGrade> studentGradeList =  transcript.getStudentGrades();
                         TranscriptAdapter transcriptAdapter = new TranscriptAdapter(getActivity(), studentGradeList);
@@ -155,23 +176,11 @@ public class TranscriptManagerFragment extends Fragment {
                 builder.setView(popupView);
                 final AlertDialog dialog = builder.create();
 
-                // Set button click listeners
                 btnSignJson.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String className = spinner.getSelectedItem().toString();
-                        for (Transcript transcript : transcripts) {
-                            if (transcript.getClassName().equals(className)) {
-                                String name = transcript.getStudentGrades().get(0).getName();
-                                Gson gson = new GsonBuilder()
-                                        .setPrettyPrinting().create();
-                                String jsonKeyString =  gson.toJson(transcript);
-                                byte[] jsonKeyByte = jsonKeyString.getBytes();
-//                                byte[] signature = DilithiumHelper.sign()
-                                showKeySelectionDialog();
-                                Toast.makeText(v.getContext(), "Sign Json clicked" + name, Toast.LENGTH_SHORT).show();
-                            }
-                        }
+                        Toast.makeText(v.getContext(), "Sign Json clicked" + selectedTranscript.getClassName(), Toast.LENGTH_SHORT).show();
+                        showKeySelectionDialog();
                     }
                 });
 
@@ -179,7 +188,7 @@ public class TranscriptManagerFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         showKeySelectionDialog();
-                        Toast.makeText(v.getContext(), "Sign PDF clicked", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(v.getContext(), "Sign PDF clicked" + selectedTranscript.getClassName(), Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -209,7 +218,11 @@ public class TranscriptManagerFragment extends Fragment {
 
         RecyclerView keyRecyclerView = keyListView.findViewById(R.id.key_list_popup_recycler_view);
         List<PublicKeyToStore> keylist = FileHelper.retrievePublicKeyFromFile(getActivity());
-        KeyAdapter keyAdapter = new KeyAdapter(getContext(), keylist, KeyAdapter.MODE_SIGN);
+        KeyAdapter keyAdapter = new KeyAdapter(
+                getContext(), keylist, KeyAdapter.MODE_SIGN,
+                key -> {
+                    signAndPostTranscript(selectedTranscript, key);
+                });
 
         keyRecyclerView.setAdapter(keyAdapter);
         keyRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -218,5 +231,76 @@ public class TranscriptManagerFragment extends Fragment {
         builder.setView(keyListView);
         final AlertDialog dialog = builder.create();
         dialog.show();
+    }
+    private void signAndPostTranscript(Transcript transcript, PublicKeyToStore publicKeyToStore) {
+        List<PrivateKeyToStore> privateKeyList = FileHelper.retrievePrivateKeyFromFile(getContext());
+        PrivateKeyToStore privateKeyToStore = null;
+        UUID keyId = publicKeyToStore.getUuid();
+        // get the corresponding private key
+        for (PrivateKeyToStore key : privateKeyList) {
+            if (key.getUuid().equals(keyId)) {
+                privateKeyToStore = key;
+            }
+        }
+        assert privateKeyToStore != null;
+
+        byte[] encryptedPrivateKeyByte = privateKeyToStore.getEncryptedPrivateKey();
+        byte[] privateKeyByte = RSADecryptor.decryptData(encryptedPrivateKeyByte, RSAHelper.getPrivateKey());
+        byte[] publicKeyByte = publicKeyToStore.getPublicKey();
+
+        DilithiumPublicKeyParameters publicKeyParameters = DilithiumHelper.retrievePublicKey(privateKeyToStore.getDilithiumParametersType(), publicKeyByte);
+        DilithiumPrivateKeyParameters privateKeyParameters = DilithiumHelper.retrievePrivateKey(publicKeyToStore.getDilithiumParametersType(), privateKeyByte, publicKeyParameters);
+
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting().create();
+        String jsonTranscript = gson.toJson(transcript);
+        byte[] transcriptToSign = jsonTranscript.getBytes();
+
+        // sign the transcript
+        byte[] signature = DilithiumHelper.sign(privateKeyParameters, transcriptToSign);
+        String signatureString = Base64.getEncoder().encodeToString(signature);
+        boolean verifyResult = DilithiumHelper.verify(publicKeyParameters, transcriptToSign, signature);
+
+        // send the verify request
+        SignatureApiService signatureApiService = SignatureApiService.getInstance();
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        String userId =  sharedPreferences.getString("userId", "defaultId");
+        String accessToken =  sharedPreferences.getString("accessToken", "defaultAccessToken");
+        VerifyRequest verifyRequest = new VerifyRequest(keyId.toString(), jsonTranscript, signatureString);
+        signatureApiService.verifyTranscript(userId, "Bearer " + accessToken, verifyRequest).enqueue(new Callback<VerifyResponse>() {
+            @Override
+            public void onResponse(Call<VerifyResponse> call, Response<VerifyResponse> response) {
+                if (response.isSuccessful()) {
+                    boolean result = response.body().isResult();
+                    Toast.makeText(getContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d("TranscriptFragment", String.valueOf(response.code())); // http status message
+                    Toast.makeText(getContext(), "Register key failed", Toast.LENGTH_SHORT).show();
+                    try {
+                        Log.d("TranscriptFragment", response.errorBody().string());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (response.code() == 403) { // token is not valid
+                        // delete old access token and navigate to login screen
+                        SharedPreferences sharedPreferences = getContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences .edit();
+                        editor.remove("accessToken");
+                        editor.apply();
+                        ((HomeActivity) getContext()).navigateToLoginScreen();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<VerifyResponse> call, Throwable throwable) {
+                Log.d("TranscriptFragment", "error when verify");
+                if (throwable instanceof IOException) {
+                    Log.e("TranscriptFragment", "Network error or conversion error: " + throwable.getMessage());
+                } else {
+                    Log.e("TranscriptFragment", "Unexpected error: " + throwable.getMessage());
+                }
+            }
+        });
     }
 }

@@ -5,16 +5,16 @@ const verifyDilithiumSignature = async (req, res) => {
   try {
     const { keyId, initialHashedMessage, signature} = req.body
     const returnedPublicKey = await PublicKey.findById(keyId)
-    const { dilithiumParameteresType, publicKeyString } = returnedPublicKey
+    const { dilithiumParametersType, publicKeyString } = returnedPublicKey
 
-    const verifyCommand = dilithiumParameteresType + " " + publicKeyString + " " + signature + " " + initialHashedMessage
+    const verifyCommand = dilithiumParametersType + " " + publicKeyString + " " + signature + " " + initialHashedMessage
 
     const result = await verifySignature(verifyCommand)
 
-    res.json(result)
+    res.json({ result })
 
   } catch (error) {
-    res.json(error.message)
+    res.status(500).json({ error: error.message })
   }
 }
 
