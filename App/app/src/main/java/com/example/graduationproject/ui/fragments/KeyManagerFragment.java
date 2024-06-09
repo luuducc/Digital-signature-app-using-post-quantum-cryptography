@@ -71,7 +71,7 @@ public class KeyManagerFragment extends Fragment {
             Toast.makeText(getContext(),"key list is null", Toast.LENGTH_SHORT).show();
             return;
         }
-        KeyAdapter adapter = new KeyAdapter(getActivity(), keyList);
+        KeyAdapter adapter = new KeyAdapter(getActivity(), keyList, KeyAdapter.MODE_SHOW);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     };

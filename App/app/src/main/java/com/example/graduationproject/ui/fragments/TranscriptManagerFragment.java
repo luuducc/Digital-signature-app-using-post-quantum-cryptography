@@ -208,8 +208,8 @@ public class TranscriptManagerFragment extends Fragment {
         View keyListView = inflater.inflate(R.layout.popup_key_list, null);
 
         RecyclerView keyRecyclerView = keyListView.findViewById(R.id.key_list_popup_recycler_view);
-        List<PublicKeyToStore> keylist = FileHelper.retrievePublicKeyFromFile(getContext());
-        KeyAdapter keyAdapter = new KeyAdapter(getContext(), keylist);
+        List<PublicKeyToStore> keylist = FileHelper.retrievePublicKeyFromFile(getActivity());
+        KeyAdapter keyAdapter = new KeyAdapter(getContext(), keylist, KeyAdapter.MODE_SIGN);
 
         keyRecyclerView.setAdapter(keyAdapter);
         keyRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
