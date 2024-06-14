@@ -1,18 +1,29 @@
 package org.example;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumParameters;
 import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPublicKeyParameters;
 import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumSigner;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Base64;
+import java.util.Map;
+import java.util.Properties;
 
 public class Main {
-    public static void main(String[] args) {
-        // Get the parameters from command line
-        String parameterType = args[0];
-        String publicKeyStr = args[1];
-        String signatureString = args[2];
-        String initialHashedMessage = args[3];
+    public static void main(String[] args) throws Exception {
+        // new logic
+        // get properties from json file
+        String inputFilePath = args[0];
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, String> properties = mapper.readValue(new File(inputFilePath), Map.class);
+
+        String parameterType = properties.get("parameterType");
+        String publicKeyStr = properties.get("publicKeyStr");
+        String signatureString = properties.get("signatureString");
+        String initialHashedMessage = properties.get("initialHashedMessage");
 
         // Decode the base64 encoded strings
         byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyStr);

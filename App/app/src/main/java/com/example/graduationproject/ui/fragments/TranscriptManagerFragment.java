@@ -278,7 +278,7 @@ public class TranscriptManagerFragment extends Fragment {
                     Toast.makeText(getContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
                 } else {
                     Log.d("TranscriptFragment", String.valueOf(response.code())); // http status message
-                    Toast.makeText(getContext(), "verify key failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Verify key failed", Toast.LENGTH_SHORT).show();
                     try {
                         Log.d("TranscriptFragment", response.errorBody().string());
                     } catch (IOException e) {

@@ -1,5 +1,6 @@
 const PublicKey = require('../models/PublicKey')
-const verifySignature = require('../verifyModule')
+const verifySignature = require('../verify/verifyModule')
+const fs = require('fs')
 
 const verifyDilithiumSignature = async (req, res) => {
   try {
@@ -7,16 +8,20 @@ const verifyDilithiumSignature = async (req, res) => {
     const returnedPublicKey = await PublicKey.findById(keyId)
     const { dilithiumParametersType, publicKeyString } = returnedPublicKey
 
-    console.log({
-      dilithiumParametersType,
-      publicKeyString,
-      signature,
-      initialHashedMessage
-    })
-    const verifyCommand = dilithiumParametersType + " " + publicKeyString + " " + signature + " " + initialHashedMessage
+    const inputObject = {
+      parameterType: dilithiumParametersType,
+      publicKeyStr: publicKeyString,
+      signatureString: signature,
+      initialHashedMessage: initialHashedMessage
+    }
 
-    const result = await verifySignature(verifyCommand)
+    fs.writeFileSync(
+      './verify/input.json',
+      JSON.stringify(inputObject, null, 2),
+      { flag: 'w'}
+    )
 
+    const result = await verifySignature()
     res.json({ result })
 
   } catch (error) {
