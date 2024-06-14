@@ -37,6 +37,7 @@ import com.example.graduationproject.ui.adapters.TranscriptAdapter;
 import com.example.graduationproject.utils.CreatePDF;
 import com.example.graduationproject.utils.DilithiumHelper;
 import com.example.graduationproject.utils.FileHelper;
+import com.example.graduationproject.utils.HashHelper;
 import com.example.graduationproject.utils.RSADecryptor;
 import com.example.graduationproject.utils.RSAHelper;
 import com.example.graduationproject.utils.RequirePermission;
@@ -254,10 +255,12 @@ public class TranscriptManagerFragment extends Fragment {
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting().create();
         String jsonTranscript = gson.toJson(transcript);
+        byte[] hashedMessage = HashHelper.hashString(jsonTranscript);
         byte[] transcriptToSign = jsonTranscript.getBytes();
+        String initialHash = Base64.getEncoder().encodeToString(hashedMessage);
 
         // sign the transcript
-        byte[] signature = DilithiumHelper.sign(privateKeyParameters, transcriptToSign);
+        byte[] signature = DilithiumHelper.sign(privateKeyParameters, hashedMessage);
         String signatureString = Base64.getEncoder().encodeToString(signature);
         boolean verifyResult = DilithiumHelper.verify(publicKeyParameters, transcriptToSign, signature);
 
@@ -266,7 +269,7 @@ public class TranscriptManagerFragment extends Fragment {
         SharedPreferences sharedPreferences = getContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         String userId =  sharedPreferences.getString("userId", "defaultId");
         String accessToken =  sharedPreferences.getString("accessToken", "defaultAccessToken");
-        VerifyRequest verifyRequest = new VerifyRequest(keyId.toString(), jsonTranscript, signatureString);
+        VerifyRequest verifyRequest = new VerifyRequest(keyId.toString(), initialHash, signatureString);
         signatureApiService.verifyTranscript(userId, "Bearer " + accessToken, verifyRequest).enqueue(new Callback<VerifyResponse>() {
             @Override
             public void onResponse(Call<VerifyResponse> call, Response<VerifyResponse> response) {
@@ -275,7 +278,7 @@ public class TranscriptManagerFragment extends Fragment {
                     Toast.makeText(getContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
                 } else {
                     Log.d("TranscriptFragment", String.valueOf(response.code())); // http status message
-                    Toast.makeText(getContext(), "Register key failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "verify key failed", Toast.LENGTH_SHORT).show();
                     try {
                         Log.d("TranscriptFragment", response.errorBody().string());
                     } catch (IOException e) {

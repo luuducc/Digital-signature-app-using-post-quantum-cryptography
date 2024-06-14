@@ -23,6 +23,7 @@ const params = fs.readFileSync('params.txt', 'utf-8')
 //   })
 // }
 
+
 const verifySignature = (verifyCommand) => {
   return new Promise((resolve, reject) => {
     exec(`java -jar verify.jar ${verifyCommand}`, (error, stdout, stderr) => {

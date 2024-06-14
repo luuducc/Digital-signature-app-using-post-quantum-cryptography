@@ -7,6 +7,12 @@ const verifyDilithiumSignature = async (req, res) => {
     const returnedPublicKey = await PublicKey.findById(keyId)
     const { dilithiumParametersType, publicKeyString } = returnedPublicKey
 
+    console.log({
+      dilithiumParametersType,
+      publicKeyString,
+      signature,
+      initialHashedMessage
+    })
     const verifyCommand = dilithiumParametersType + " " + publicKeyString + " " + signature + " " + initialHashedMessage
 
     const result = await verifySignature(verifyCommand)

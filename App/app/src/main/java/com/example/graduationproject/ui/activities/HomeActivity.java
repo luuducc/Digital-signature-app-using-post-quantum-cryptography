@@ -86,6 +86,12 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<Transcript>> call, Throwable throwable) {
                 Log.d("MyHomeActivity", "error when fetch");
+                // delete old access token and navigate to login screen
+                SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences .edit();
+                editor.remove("accessToken");
+                editor.apply();
+                navigateToLoginScreen();
             }
         });
     }
