@@ -37,20 +37,12 @@ public class KeyManagerFragment extends Fragment {
 
 
 //     allow the fragment to fetch data and display
-    public static KeyManagerFragment newInstance(List<PublicKeyToStore> keyList) {
-        KeyManagerFragment fragment = new KeyManagerFragment();
-        Bundle args = new Bundle();
-        args.putSerializable("keyList", new ArrayList<>(keyList));
-        fragment.setArguments(args);
-        return fragment;
+    public KeyManagerFragment(List<PublicKeyToStore> keyList) {
+        this.keyList = keyList;
     }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            keyList = (List<PublicKeyToStore>) getArguments().getSerializable("keyList");
-        }
     }
 
     @SuppressLint("MissingInflatedId")

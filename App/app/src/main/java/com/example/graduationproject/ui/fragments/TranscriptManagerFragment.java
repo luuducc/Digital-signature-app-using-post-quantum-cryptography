@@ -67,20 +67,13 @@ public class TranscriptManagerFragment extends Fragment {
     private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
 
     // allow the fragment to fetch data and display
-    public static TranscriptManagerFragment newInstance(List<Transcript> transcripts) {
-        TranscriptManagerFragment fragment = new TranscriptManagerFragment();
-        Bundle args = new Bundle();
-        args.putSerializable("transcripts", new ArrayList<>(transcripts));
-        fragment.setArguments(args);
-        return fragment;
+    public TranscriptManagerFragment(List<Transcript> transcripts) {
+        this.transcripts = transcripts;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            transcripts = (List<Transcript>) getArguments().getSerializable("transcripts");
-        }
     }
 
     @SuppressLint("MissingInflatedId")

@@ -33,11 +33,9 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position) {
             case 1:
-                return TranscriptManagerFragment.newInstance(transcripts);
+                return new TranscriptManagerFragment(transcripts);
             default:
-                return KeyManagerFragment.newInstance(retrievedPublicKeys);
-//                return new TestFragment();
-//                return new KeyManagerFragment();
+                return new KeyManagerFragment(retrievedPublicKeys);
         }
     }
 
