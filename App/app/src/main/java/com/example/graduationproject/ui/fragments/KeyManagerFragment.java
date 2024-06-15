@@ -76,15 +76,10 @@ public class KeyManagerFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     };
     private void setupGenerateKeyPairButton(){
-        btnGenKeyPair.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AuthenticateFingerprint.authenticate(
-                        getContext(),
-                        () -> showGenKeyPopup(),
-                        "Authenticate to generate key pair");
-            }
-        });
+        btnGenKeyPair.setOnClickListener(v -> AuthenticateFingerprint.authenticate(
+                getContext(),
+                () -> showGenKeyPopup(),
+                "Authenticate to generate key pair"));
     };
 
     private void showGenKeyPopup() {
@@ -114,36 +109,37 @@ public class KeyManagerFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
-        btnGenKey.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String keyAlias = edText.getText().toString();
-                String dilithiumType = spinner.getSelectedItem().toString();
-                if (keyAlias.length() == 0) {
-                    Toast.makeText(v.getContext(), "Please insert key alias!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Log.d("popup", keyAlias + dilithiumType);
-
-                // gen dilithium key pair
-                try {
-                    KeyToStoreHelper.generateDilithiumKeyPair(keyAlias, v.getContext(), dilithiumType);
-                } catch (MyException e) {
-                    Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Toast.makeText(v.getContext(), "Generated dilithium keypair", Toast.LENGTH_SHORT).show();
-
-                // update the recycler view
-                updateRecyclerView();
-
-                dialog.dismiss();
+        btnGenKey.setOnClickListener(v -> {
+            String keyAlias = edText.getText().toString();
+            String dilithiumType = spinner.getSelectedItem().toString();
+            if (keyAlias.length() == 0) {
+                Toast.makeText(v.getContext(), "Please insert key alias!", Toast.LENGTH_SHORT).show();
+                return;
             }
+            if (keyAlias.length() > 6) {
+                Toast.makeText(v.getContext(), "Alias max length is 6", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Log.d("popup", keyAlias + dilithiumType);
+
+            // gen dilithium key pair
+            try {
+                KeyToStoreHelper.generateDilithiumKeyPair(keyAlias, v.getContext(), dilithiumType);
+            } catch (MyException e) {
+                Toast.makeText(v.getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Toast.makeText(v.getContext(), "Generated dilithium keypair", Toast.LENGTH_SHORT).show();
+
+            // update the recycler view
+            updateRecyclerView();
+
+            dialog.dismiss();
         });
         dialog.show();
     }
     private void updateRecyclerView() {
-        Log.d("KeyManagerFragment", "updateing recycler view: " + keyList.size());
+        Log.d("KeyManagerFragment", "updating recycler view: " + keyList.size());
         keyList = FileHelper.retrievePublicKeyFromFile(getActivity());
         KeyAdapter keyAdapter = (KeyAdapter) recyclerView.getAdapter();
         keyAdapter.updateKeyList(keyList);
