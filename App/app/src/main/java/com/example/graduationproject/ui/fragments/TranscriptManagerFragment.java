@@ -166,18 +166,15 @@ public class TranscriptManagerFragment extends Fragment {
             final AlertDialog dialog = builder.create();
 
             btnSignJson.setOnClickListener(view -> {
-                Toast.makeText(view.getContext(), "Sign Json clicked" + selectedTranscript.getClassName(), Toast.LENGTH_SHORT).show();
-                showKeySelectionDialog();
+                showKeySelectionDialog(KeyDialogFragment.MODE_JSON);
             });
 
             btnSignPdf.setOnClickListener(view -> {
-                Toast.makeText(view.getContext(), "Sign PDF clicked" + selectedTranscript.getClassName(), Toast.LENGTH_SHORT).show();
-                showKeySelectionDialog();
+                showKeySelectionDialog(KeyDialogFragment.MODE_PDF);
             });
 
             btnSignAll.setOnClickListener(view -> {
-                Toast.makeText(view.getContext(), "Sign All clicked", Toast.LENGTH_SHORT).show();
-                showKeySelectionDialog();
+                showKeySelectionDialog(KeyDialogFragment.MODE_ALL);
             });
 
             btnOk.setOnClickListener(view -> dialog.dismiss());
@@ -186,8 +183,8 @@ public class TranscriptManagerFragment extends Fragment {
             dialog.show();
         });
     }
-    private void showKeySelectionDialog() {
-        KeyDialogFragment keyDialogFragment = new KeyDialogFragment(selectedTranscript);
+    private void showKeySelectionDialog(int keyDialogModeType) {
+        KeyDialogFragment keyDialogFragment = new KeyDialogFragment(selectedTranscript, keyDialogModeType);
         keyDialogFragment.show(getActivity().getSupportFragmentManager(), "keyDialogFragment");
     }
 }

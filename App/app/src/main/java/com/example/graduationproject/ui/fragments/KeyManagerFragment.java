@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KeyManagerFragment extends Fragment {
-    private Button btnGenKeyPair, btnSign;
+    private Button btnGenKeyPair;
     private RecyclerView recyclerView;
     private List<PublicKeyToStore> keyList;
     private final String PUBLIC_FILE_NAME = "public.dat";
@@ -52,7 +52,6 @@ public class KeyManagerFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_key_manager, container, false);
         recyclerView = view.findViewById(R.id.key_recycler_view);
         btnGenKeyPair = view.findViewById(R.id.btnGenerateKey);
-        btnSign = view.findViewById(R.id.btnSign);
         setupRecyclerView();
         setupGenerateKeyPairButton();
         return view;
