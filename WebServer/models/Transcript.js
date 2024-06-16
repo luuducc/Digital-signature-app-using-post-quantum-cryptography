@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const transriptSchema = new mongoose.Schema({
+const transcriptSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
@@ -8,7 +8,7 @@ const transriptSchema = new mongoose.Schema({
   },
   className: {
     type: String, 
-    unique: true
+    required: true
   },
   studentGrades: [
     {
@@ -30,7 +30,10 @@ const transriptSchema = new mongoose.Schema({
   }
 })
 
-transriptSchema.pre('save', function (next) {
+// using compound index to ensure unique className among users
+transcriptSchema.index({ user: 1, className: 1 }, { unique: true });
+
+transcriptSchema.pre('save', function (next) {
   let {className} = this
 
   className = className.trim(' ').toLowerCase()
@@ -41,4 +44,4 @@ transriptSchema.pre('save', function (next) {
   next()
 })
 
-module.exports = mongoose.model('Transcript', transriptSchema)
+module.exports = mongoose.model('Transcript', transcriptSchema)

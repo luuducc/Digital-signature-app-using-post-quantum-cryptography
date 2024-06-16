@@ -42,11 +42,6 @@ public class HomeActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
 
-//        if (!isUserLoggedIn()) {
-//            navigateToLoginScreen();
-//            return;
-//        }
-
         fetchKeysInKeyStore();
         fetchTranscripts();
     }
@@ -58,7 +53,7 @@ public class HomeActivity extends AppCompatActivity {
         String accessToken =  sharedPreferences.getString("accessToken", "defautAccessToken");
         Log.d("MyHomeActivity", "hello" + userId + accessToken);
 
-        transcriptApiService.getTranscripts(userId, "Bearer " + accessToken).enqueue(new Callback<List<Transcript>>() {
+        transcriptApiService.getTranscripts("Bearer " + accessToken).enqueue(new Callback<List<Transcript>>() {
             @Override
             public void onResponse(Call<List<Transcript>> call, Response<List<Transcript>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -85,7 +80,7 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Transcript>> call, Throwable throwable) {
-                Log.d("MyHomeActivity", "error when fetch");
+                Log.d("MyHomeActivity", "error when fetch" + throwable.getMessage());
                 // delete old access token and navigate to login screen
                 SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences .edit();

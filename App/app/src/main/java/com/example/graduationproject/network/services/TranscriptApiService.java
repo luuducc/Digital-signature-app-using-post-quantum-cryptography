@@ -24,7 +24,7 @@ public class TranscriptApiService {
         return instance;
     }
 
-    public Call<List<Transcript>> getTranscripts(String userId, String accessToken) {
-        return apiInterface.getTranscripts(userId, accessToken);
+    public Call<List<Transcript>> getTranscripts(String accessToken) {
+        return apiInterface.getTranscripts(accessToken);
     }
 }

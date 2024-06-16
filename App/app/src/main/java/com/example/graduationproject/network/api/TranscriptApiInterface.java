@@ -10,9 +10,8 @@ import retrofit2.http.Header;
 import retrofit2.http.Path;
 
 public interface TranscriptApiInterface {
-    @GET("/api/transcript/{userId}")
+    @GET("/api/transcript")
     Call<List<Transcript>> getTranscripts(
-        @Path("userId") String userId,
         @Header("Authorization") String accessToken
     );
 }

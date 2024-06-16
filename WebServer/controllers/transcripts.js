@@ -1,13 +1,11 @@
 const Transcript = require('../models/Transcript')
+const transcriptService = require('../services/transcriptService')
 
 const getAllTranscripts = async (req, res) => {
   try {
-    const { userId } = req.params
-    if( !userId ) {
-      throw new Error('Invalid userId')
-    }
-    const transcripts = await Transcript.find({ user: userId })
-    if(transcripts) res.json(transcripts)
+    const userId = req.user._id
+    const transcripts = await transcriptService.getAllTranscripts(userId)
+    if (transcripts) res.json(transcripts)
     else throw new Error('cannot find')
   } catch (error) {
     res.json(error.message)
@@ -18,9 +16,9 @@ const getAllTranscripts = async (req, res) => {
 const getTranscript = async (req, res) => {
   try {
     const {className} = req.params
-    const transcript = await Transcript.findOne()
-      .where({ className: new RegExp(`^${className}$`, 'i')})
-      .populate({ path: 'user' })
+    const userId = req.user._id
+
+    const transcript = await transcriptService.getTranscript(className, userId)
 
     if (transcript) 
       res.json(transcript)
@@ -29,11 +27,13 @@ const getTranscript = async (req, res) => {
   } catch (error) {
     res.json(error.message)
   }
-}
+} 
 
 const createTranscript = async (req, res) => {
   try {
-    const newTranscript = await Transcript.create(req.body )
+    const transcript = req.body
+    const userId = req.user._id
+    const newTranscript = await transcriptService.createTranscript(transcript, userId)
     res.json(newTranscript)
   } catch (error) {
     res.json(error.message)
