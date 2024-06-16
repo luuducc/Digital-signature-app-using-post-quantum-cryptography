@@ -6,7 +6,10 @@ public class Transcript {
     private String _id;
     private String className;
     private List<Transcript.StudentGrade> studentGrades;
-    private boolean isSigned = false;
+    private String JsonSignature;
+    private String PdfSignature;
+    private boolean isSignedJson = false;
+    private boolean isSignedPdf = false;
 
     public String getClassName() {
         return className;
@@ -28,16 +31,37 @@ public class Transcript {
         this._id = _id;
     }
 
-    public boolean isSigned() {
-        return isSigned;
+    public String getJsonSignature() {
+        return JsonSignature;
     }
 
-    public void setSign(boolean sign) {
-        isSigned = sign;
+    public void setJsonSignature(String jsonSignature) {
+        JsonSignature = jsonSignature;
     }
-    //    public void setStudentGrades(List<TranscriptData.studentGrades> studentGrades) {
-//        this.studentGrades = studentGrades;
-//    }
+
+    public String getPdfSignature() {
+        return PdfSignature;
+    }
+
+    public void setPdfSignature(String pdfSignature) {
+        PdfSignature = pdfSignature;
+    }
+
+    public boolean isSignedJson() {
+        return isSignedJson;
+    }
+
+    public void setSignedJson(boolean signedJson) {
+        isSignedJson = signedJson;
+    }
+
+    public boolean isSignedPdf() {
+        return isSignedPdf;
+    }
+
+    public void setSignedPdf(boolean signedPdf) {
+        isSignedPdf = signedPdf;
+    }
 
     public static class StudentGrade{
         private String studentId;

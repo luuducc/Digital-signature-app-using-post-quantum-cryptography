@@ -4,10 +4,12 @@ const {
   verifyDilithiumSignature
 } = require ('../controllers/verifyDilithium')
 const {
-  verifyTokenAndUser
+  verifyTokenAndUser,
+  verifyToken
 } = require('../controllers/verifyToken')
+const { verify } = require('jsonwebtoken')
 
 
-router.route('/:userId').post(verifyTokenAndUser, verifyDilithiumSignature)
+router.route('/').post(verifyToken, verifyDilithiumSignature)
 
 module.exports = router

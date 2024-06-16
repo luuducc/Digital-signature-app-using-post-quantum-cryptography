@@ -17,9 +17,8 @@ public interface SignatureApiInterface {
             @Path("userId") String userId,
             @Header("Authorization") String accessToken,
             @Body RegisterKeyRequest keyRequest);
-    @POST("/api/verify/{userId}")
+    @POST("/api/verify")
     Call<VerifyResponse> verifyTranscript(
-            @Path("userId") String userId,
             @Header("Authorization") String accessToken,
             @Body VerifyRequest verifyRequest);
 }

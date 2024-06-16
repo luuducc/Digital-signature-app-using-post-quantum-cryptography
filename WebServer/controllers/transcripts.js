@@ -44,12 +44,9 @@ const updateTranscript = async (req, res) => {
   try {
     const { className } = req.params
     const studentGrades = req.body
+    const userId = req.user._id
 
-    const transcript = await Transcript.findOneAndUpdate(
-      { className: new RegExp(`^${className}$`, 'i') },
-      { studentGrades },
-      { new: true }
-    )
+    const transcript = await transcriptService.updateTranscript(className, studentGrades, userId)
 
     res.json(transcript)
 

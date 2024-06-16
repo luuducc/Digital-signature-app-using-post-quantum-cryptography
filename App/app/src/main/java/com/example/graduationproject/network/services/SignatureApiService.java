@@ -26,7 +26,7 @@ public class SignatureApiService {
         return apiInterface.registerKey(userId, accessToken, keyRequest);
     }
 
-    public Call<VerifyResponse> verifyTranscript(String userId, String accessToken, VerifyRequest verifyRequest) {
-        return apiInterface.verifyTranscript(userId, accessToken, verifyRequest);
+    public Call<VerifyResponse> verifyTranscript(String accessToken, VerifyRequest verifyRequest) {
+        return apiInterface.verifyTranscript(accessToken, verifyRequest);
     }
 }

@@ -51,12 +51,24 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
     private Transcript selectedTranscript;
     private final String SHARED_PREFERENCES_NAME = MyConstant.SHARED_PREFERENCES_NAME;
     private int modeType;
-    public static final int MODE_JSON = 1;
-    public static final int MODE_PDF = 2;
-    public static final int MODE_ALL = 3;
-    public KeyDialogFragment(Transcript selectedTranscript, int modeType) {
+    private int keyAdapterModeType;
+    public static final int MODE_SIGN_JSON = 1;
+    public static final int MODE_SIGN_PDF = 2;
+    public static final int MODE_SIGN_ALL = 3;
+    public static final int MODE_VERIFY_JSON = 4;
+    public static final int MODE_VERIFY_PDF = 5;
+    public static final int MODE_VERIFY_ALL = 6;
+    public interface OnTranscriptSignedListener {
+        void onTranscriptSigned(boolean isSignedJson, boolean isSignedPdf);
+    }
+    private OnTranscriptSignedListener listener;
+    public KeyDialogFragment(
+            Transcript selectedTranscript, int modeType,
+            int keyAdapterModetype, OnTranscriptSignedListener listenter) {
         this.selectedTranscript = selectedTranscript;
         this.modeType = modeType;
+        this.keyAdapterModeType = keyAdapterModetype;
+        this.listener = listenter;
     }
 
     @Nullable
@@ -72,7 +84,7 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
 
         KeyAdapter keyAdapter = new KeyAdapter(
                 getActivity(),
-                publicKeyToStoreList, KeyAdapter.MODE_SIGN,
+                publicKeyToStoreList, keyAdapterModeType,
                 key -> signAndPostTranscript(selectedTranscript, key));
 
         keyRecyclerView.setAdapter(keyAdapter);
@@ -104,63 +116,85 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
         DilithiumPrivateKeyParameters privateKeyParameters = DilithiumHelper.retrievePrivateKey(publicKeyToStore.getDilithiumParametersType(), privateKeyByte, publicKeyParameters);
 
         switch (modeType) {
-            case MODE_JSON:
+            case MODE_SIGN_JSON:
                 signJsonTranscript(transcript, keyId.toString(), privateKeyParameters);
                 break;
-            case MODE_PDF:
+            case MODE_SIGN_PDF:
                 signPdfTranscript(transcript, keyId.toString(), privateKeyParameters);
                 break;
-            case MODE_ALL:
+            case MODE_SIGN_ALL:
                 signJsonTranscript(transcript, keyId.toString(), privateKeyParameters);
                 signPdfTranscript(transcript, keyId.toString(), privateKeyParameters);
+                break;
+            case MODE_VERIFY_JSON:
+                Toast.makeText(getContext(), "json", Toast.LENGTH_SHORT).show();
+                break;
+            case MODE_VERIFY_PDF:
+                Toast.makeText(getContext(), "pdf", Toast.LENGTH_SHORT).show();
+                break;
+            case MODE_VERIFY_ALL:
+                Toast.makeText(getContext(), "all", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
     private void signJsonTranscript(
             Transcript transcript, String keyId, DilithiumPrivateKeyParameters privateKeyParameters) {
+        String className = transcript.getClassName();
+
+        // get the transcript string and hash it
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting().create();
         String jsonTranscript = gson.toJson(transcript);
         byte[] hashedMessage = HashHelper.hashString(jsonTranscript);
         String initialHash = Base64.getEncoder().encodeToString(hashedMessage);
-
         // sign the transcript
         byte[] signature = DilithiumHelper.sign(privateKeyParameters, hashedMessage);
+        // get the signature string
         String signatureString = Base64.getEncoder().encodeToString(signature);
+
         sendVerifyRequest(
-                keyId, initialHash, signatureString,
+                className, keyId, initialHash, signatureString, VerifyRequest.JSON_SIGNATURE,
                 result -> Toast.makeText(getContext(), "JSON verification result: " + result, Toast.LENGTH_SHORT).show());
     }
     private void signPdfTranscript(
             Transcript transcript, String keyId, DilithiumPrivateKeyParameters privateKeyParameters) {
         try {
+            String className = transcript.getClassName();
+
+            // hash PDF
             byte[] hashedMessage = HashHelper.hashPDF(transcript.getClassName());
             String initialHash = Base64.getEncoder().encodeToString(hashedMessage);
             // sign the transcript
             byte[] signature = DilithiumHelper.sign(privateKeyParameters, hashedMessage);
             String signatureString = Base64.getEncoder().encodeToString(signature);
+
             sendVerifyRequest(
-                    keyId, initialHash, signatureString,
+                    className, keyId, initialHash, signatureString, VerifyRequest.PDF_SIGNATURE,
                     result -> Toast.makeText(getContext(), "PDF verification result: " + result, Toast.LENGTH_SHORT).show());
         } catch (MyException e) {
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
     private void sendVerifyRequest(
-            String keyId, String initialHashMessage,
-            String signatureString, VerifyCallback verifyCallback) {
+            String className, String keyId, String initialHashMessage, String signatureString, boolean isPdfElseJson,
+            VerifyCallback verifyCallback) {
         // send the verify request
         SignatureApiService signatureApiService = SignatureApiService.getInstance();
         SharedPreferences sharedPreferences = getContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        String userId =  sharedPreferences.getString("userId", "defaultId");
         String accessToken =  sharedPreferences.getString("accessToken", "defaultAccessToken");
-        VerifyRequest verifyRequest = new VerifyRequest(keyId, initialHashMessage, signatureString);
-        signatureApiService.verifyTranscript(userId, "Bearer " + accessToken, verifyRequest).enqueue(new Callback<VerifyResponse>() {
+        VerifyRequest verifyRequest = new VerifyRequest(
+                className, keyId, initialHashMessage, signatureString, isPdfElseJson);
+        signatureApiService.verifyTranscript("Bearer " + accessToken, verifyRequest).enqueue(new Callback<VerifyResponse>() {
             @Override
             public void onResponse(Call<VerifyResponse> call, Response<VerifyResponse> response) {
                 if (response.isSuccessful()) {
                     boolean result = response.body().getResult();
                     verifyCallback.onVerifySuccess(result);
+                    if (isPdfElseJson) {
+                        listener.onTranscriptSigned(false, true);
+                    } else {
+                        listener.onTranscriptSigned(true, false);
+                    }
                 } else {
                     Log.d("TranscriptFragment", String.valueOf(response.code())); // http status message
                     try {

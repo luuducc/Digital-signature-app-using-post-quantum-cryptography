@@ -24,6 +24,18 @@ const createTranscript = async (transcript, userId) => {
   const newTranscript = await Transcript.create({  user: userId, ...transcript })
   return newTranscript
 }
+
+const updateTranscript = async (className, studentGrades, userId) => {
+  const transcript = await Transcript.findOneAndUpdate(
+    { 
+      className: new RegExp(`^${className}$`, 'i'),
+      user: userId
+    },
+    { studentGrades },
+    { new: true }
+  )
+  return transcript
+}
 module.exports = {
-  getTranscript, getAllTranscripts, createTranscript
+  getTranscript, getAllTranscripts, createTranscript, updateTranscript
 }

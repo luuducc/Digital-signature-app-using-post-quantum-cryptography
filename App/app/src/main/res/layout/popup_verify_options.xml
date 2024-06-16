@@ -10,7 +10,7 @@
         android:id="@+id/tvHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign Options"
+        android:text="Verify Options"
         android:textAlignment="center"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -30,24 +30,24 @@
         android:paddingVertical="16dp">
 
         <Button
-            android:id="@+id/btnSignJson"
+            android:id="@+id/btnVerifyJson"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sign Json"
+            android:text="Verify Json"
             android:layout_marginBottom="8dp" />
 
         <Button
-            android:id="@+id/btnSignPdf"
+            android:id="@+id/btnVerifyPdf"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sign PDF"
+            android:text="Verify PDF"
             android:layout_marginBottom="8dp" />
 
         <Button
-            android:id="@+id/btnSignAll"
+            android:id="@+id/btnVerifyAll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sign All" />
+            android:text="Verify All" />
     </LinearLayout>
 
     <!-- Divider -->
@@ -58,7 +58,7 @@
 
     <!-- OK Button Section -->
     <Button
-        android:id="@+id/btnSignOk"
+        android:id="@+id/btnVerifyOk"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="OK"

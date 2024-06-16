@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.data.remote.Transcript;
+import com.example.graduationproject.ui.adapters.KeyAdapter;
 import com.example.graduationproject.ui.adapters.TranscriptAdapter;
 import com.example.graduationproject.utils.FileHelper;
 import com.example.graduationproject.utils.RequirePermission;
@@ -29,10 +30,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TranscriptManagerFragment extends Fragment {
-    private Button btnCreatePdf, btnSign;
+public class TranscriptManagerFragment extends Fragment implements KeyDialogFragment.OnTranscriptSignedListener{
+    private Button btnCreatePdf, btnSign, btnVerify;
     private Spinner spinner;
-    private TextView isSigned;
+    private TextView isSignedJson, isSignedPdf;
     private RecyclerView recyclerView;
     private List<Transcript> transcripts;
     private Transcript selectedTranscript;
@@ -56,11 +57,14 @@ public class TranscriptManagerFragment extends Fragment {
         spinner = view.findViewById(R.id.spinner);
         btnCreatePdf = view.findViewById(R.id.btnCreatePdf);
         btnSign = view.findViewById(R.id.btnSign);
-        isSigned = view.findViewById(R.id.isSigned);
+        btnVerify = view.findViewById(R.id.btnVerify);
+        isSignedJson = view.findViewById(R.id.isSignedJson);
+        isSignedPdf = view.findViewById(R.id.isSignedPdf);
 
         setupSpinner();
         setupCreatePdfButton();
         setupSignButton();
+        setupVerifyButton();
 
         return view;
     }
@@ -83,13 +87,14 @@ public class TranscriptManagerFragment extends Fragment {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedClassName = classNames.get(position);
+                String selectedClassname = classNames.get(position);
                 for (Transcript transcript : transcripts) {
-                    if (transcript.getClassName().equals(selectedClassName)) {
+                    if (transcript.getClassName().equals(selectedClassname)) {
                         // assign the selected transcript
                         selectedTranscript = transcript;
 
-                        isSigned.setText("Signed: " + transcript.isSigned());
+                        isSignedJson.setText("Signed JSON: " + transcript.isSignedJson());
+                        isSignedPdf.setText("Signed PDF: " + transcript.isSignedPdf());
                         List<Transcript.StudentGrade> studentGradeList =  transcript.getStudentGrades();
                         TranscriptAdapter transcriptAdapter = new TranscriptAdapter(getActivity(), studentGradeList);
                         recyclerView.setAdapter(transcriptAdapter);
@@ -131,22 +136,22 @@ public class TranscriptManagerFragment extends Fragment {
             Button btnSignJson = popupView.findViewById(R.id.btnSignJson);
             Button btnSignPdf = popupView.findViewById(R.id.btnSignPdf);
             Button btnSignAll = popupView.findViewById(R.id.btnSignAll);
-            Button btnOk = popupView.findViewById(R.id.btnOk);
+            Button btnOk = popupView.findViewById(R.id.btnSignOk);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
             builder.setView(popupView);
             final AlertDialog dialog = builder.create();
 
             btnSignJson.setOnClickListener(view -> {
-                showKeySelectionDialog(KeyDialogFragment.MODE_JSON);
+                showKeySelectionDialog(KeyDialogFragment.MODE_SIGN_JSON, KeyAdapter.MODE_SIGN);
             });
 
             btnSignPdf.setOnClickListener(view -> {
-                showKeySelectionDialog(KeyDialogFragment.MODE_PDF);
+                showKeySelectionDialog(KeyDialogFragment.MODE_SIGN_PDF, KeyAdapter.MODE_SIGN);
             });
 
             btnSignAll.setOnClickListener(view -> {
-                showKeySelectionDialog(KeyDialogFragment.MODE_ALL);
+                showKeySelectionDialog(KeyDialogFragment.MODE_SIGN_ALL, KeyAdapter.MODE_SIGN);
             });
 
             btnOk.setOnClickListener(view -> dialog.dismiss());
@@ -155,8 +160,49 @@ public class TranscriptManagerFragment extends Fragment {
             dialog.show();
         });
     }
-    private void showKeySelectionDialog(int keyDialogModeType) {
-        KeyDialogFragment keyDialogFragment = new KeyDialogFragment(selectedTranscript, keyDialogModeType);
+    private void setupVerifyButton() {
+        btnVerify.setOnClickListener(v -> {
+            // create custom layout view
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View popupView = inflater.inflate(R.layout.popup_verify_options, null);
+
+            Button btnVerifyJson = popupView.findViewById(R.id.btnVerifyJson);
+            Button btnVerifyPdf = popupView.findViewById(R.id.btnVerifyPdf);
+            Button btnVerifyAll = popupView.findViewById(R.id.btnVerifyAll);
+            Button btnVerifyOk = popupView.findViewById(R.id.btnVerifyOk);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+            builder.setView(popupView);
+            final AlertDialog dialog = builder.create();
+
+            btnVerifyJson.setOnClickListener(view -> {
+                showKeySelectionDialog(KeyDialogFragment.MODE_VERIFY_JSON, KeyAdapter.MODE_VERIFY);
+            });
+            btnVerifyPdf.setOnClickListener(view -> {
+                showKeySelectionDialog(KeyDialogFragment.MODE_VERIFY_PDF, KeyAdapter.MODE_VERIFY);
+            });
+            btnVerifyAll.setOnClickListener(view -> {
+                showKeySelectionDialog(KeyDialogFragment.MODE_VERIFY_ALL, KeyAdapter.MODE_VERIFY);
+            });
+            btnVerifyOk.setOnClickListener(view -> dialog.dismiss());
+
+            // show the dialog
+            dialog.show();
+        });
+    }
+    private void showKeySelectionDialog(int keyDialogModeType, int keyAdapterModeType) {
+        KeyDialogFragment keyDialogFragment = new KeyDialogFragment(
+                selectedTranscript, keyDialogModeType, keyAdapterModeType, this);
         keyDialogFragment.show(getActivity().getSupportFragmentManager(), "keyDialogFragment");
+    }
+    @Override
+    public void onTranscriptSigned(boolean isSignedJson, boolean isSignedPdf) {
+        // Update the isSigned TextView
+        if (isSignedJson) {
+            this.isSignedJson.setText("Signed JSON: true");
+        }
+        if (isSignedPdf) {
+            this.isSignedPdf.setText("Signed PDF: true");
+        }
     }
 }

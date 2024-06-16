@@ -24,6 +24,20 @@ const transcriptSchema = new mongoose.Schema({
       _id: false
     }
   ],
+  JsonSignature: {
+    type: String,
+    default: ""
+  },
+  PdfSignature: {
+    type: String, 
+    default: ""
+  },
+  isSignedJson: {
+    type: Boolean
+  },
+  isSignedPdf: {
+    type: Boolean
+  },
   __v: {
     type: Number,
     select: false // exclude this field from query

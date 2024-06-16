@@ -52,6 +52,7 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
     private final OnKeyItemClickListener keyItemClickListener;
     public static final int MODE_SHOW = 1;
     public static final int MODE_SIGN = 2;
+    public static final int MODE_VERIFY = 3;
 
     public KeyAdapter(
             Context context, List<PublicKeyToStore> keyList,
@@ -125,6 +126,13 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
                 ));
             }
                 break;
+            case MODE_VERIFY: {
+                holder.rowLayout.setOnClickListener(v -> {
+                    if (keyItemClickListener != null) {
+                        keyItemClickListener.onKeyItemClick(key);
+                    }
+                });
+            }
         }
     }
 

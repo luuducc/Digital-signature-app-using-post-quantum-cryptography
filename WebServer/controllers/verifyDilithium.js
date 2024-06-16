@@ -1,10 +1,29 @@
 const PublicKey = require('../models/PublicKey')
 const verifySignature = require('../verify/verifyModule')
+const Transcript = require('../models/Transcript')
 const fs = require('fs')
 
 const verifyDilithiumSignature = async (req, res) => {
   try {
-    const { keyId, initialHashedMessage, signature} = req.body
+    const {className, keyId, initialHashedMessage, signature, isPdfElseJson} = req.body
+    const userId = req.user._id
+
+    let updatedTranscript
+
+    // update transcript
+    if (isPdfElseJson) { // update pdf signature
+      updatedTranscript = await Transcript.findOneAndUpdate(
+        { className, user: userId },
+        { PdfSignature: signature, isSignedPdf: true }, 
+        { new: true}
+      )
+    } else { // update json signature
+      updatedTranscript = await Transcript.findOneAndUpdate(
+        { className, user: userId },
+        { JsonSignature: signature, isSignedJson: true },
+        { new: true }
+      )
+    }
     const returnedPublicKey = await PublicKey.findById(keyId)
     const { dilithiumParametersType, publicKeyString } = returnedPublicKey
 
