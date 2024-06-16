@@ -80,6 +80,10 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
         return view;
     }
     private void signAndPostTranscript(Transcript transcript, PublicKeyToStore publicKeyToStore) {
+        if (!publicKeyToStore.isRegistered()) {
+            Toast.makeText(getContext(), "Key is not registered", Toast.LENGTH_SHORT).show();
+            return;
+        }
         List<PrivateKeyToStore> privateKeyList = FileHelper.retrievePrivateKeyFromFile(getContext());
         PrivateKeyToStore privateKeyToStore = null;
         UUID keyId = publicKeyToStore.getUuid();
@@ -172,8 +176,7 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
                         editor.apply();
                         ((HomeActivity) getContext()).navigateToLoginScreen();
                     }
-                    Toast.makeText(getContext(), "Key is not registered", Toast.LENGTH_SHORT).show();
-//                    verifyCallback.onVerifyFailure("Key is not registered");
+                    Toast.makeText(getContext(), "Response unsuccessful: " + response.errorBody(), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -183,11 +186,9 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
                 if (throwable instanceof IOException) {
                     Log.e("TranscriptFragment", "Network error or conversion error: " + throwable.getMessage());
                     Toast.makeText(getContext(), "Network error or conversion error: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-//                    verifyCallback.onVerifyFailure("Network error: " + throwable.getMessage());
                 } else {
                     Log.e("TranscriptFragment", "Unexpected error: " + throwable.getMessage());
                     Toast.makeText(getContext(), "Unexpected error: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-//                    verifyCallback.onVerifyFailure("Unexpected error: " + throwable.getMessage());
                 }
             }
         });

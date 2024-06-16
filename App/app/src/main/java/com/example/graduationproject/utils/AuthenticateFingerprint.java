@@ -7,11 +7,12 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 
 import com.example.graduationproject.ui.activities.HomeActivity;
+import com.example.graduationproject.utils.callback.AuthenticationCallback;
 
 import java.util.concurrent.Executor;
 
 public class AuthenticateFingerprint {
-    public static void authenticate(Context context,AuthenticationCallback callback, String promptTitle) {
+    public static void authenticate(Context context, AuthenticationCallback callback, String promptTitle) {
         Executor executor = ContextCompat.getMainExecutor(context);
         BiometricPrompt biometricPrompt = new BiometricPrompt((HomeActivity) context, executor, new BiometricPrompt.AuthenticationCallback() {
             @Override

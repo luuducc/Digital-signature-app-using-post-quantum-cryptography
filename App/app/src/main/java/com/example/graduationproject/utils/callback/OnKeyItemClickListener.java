@@ -1,4 +1,4 @@
-package com.example.graduationproject.utils;
+package com.example.graduationproject.utils.callback;
 
 import com.example.graduationproject.data.local.PublicKeyToStore;
 

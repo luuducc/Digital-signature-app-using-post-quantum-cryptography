@@ -1,10 +1,7 @@
 package com.example.graduationproject.ui.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,49 +10,24 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
-import com.example.graduationproject.data.local.PrivateKeyToStore;
-import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.Transcript;
-import com.example.graduationproject.data.remote.VerifyRequest;
-import com.example.graduationproject.data.remote.VerifyResponse;
-import com.example.graduationproject.network.services.SignatureApiService;
-import com.example.graduationproject.ui.activities.HomeActivity;
-import com.example.graduationproject.ui.adapters.KeyAdapter;
 import com.example.graduationproject.ui.adapters.TranscriptAdapter;
-import com.example.graduationproject.utils.CreatePDF;
-import com.example.graduationproject.utils.DilithiumHelper;
 import com.example.graduationproject.utils.FileHelper;
-import com.example.graduationproject.utils.HashHelper;
-import com.example.graduationproject.utils.RSADecryptor;
-import com.example.graduationproject.utils.RSAHelper;
 import com.example.graduationproject.utils.RequirePermission;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPrivateKeyParameters;
-import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPublicKeyParameters;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class TranscriptManagerFragment extends Fragment {
     private Button btnCreatePdf, btnSign;
@@ -141,7 +113,7 @@ public class TranscriptManagerFragment extends Fragment {
             // require read/write file permission
             RequirePermission.verifyStoragePermissions(getActivity());
             try {
-                CreatePDF.createPdf(studentGradeList, className);
+                FileHelper.createPdf(studentGradeList, className);
                 Toast.makeText(v.getContext(), "Created PDF for class: " + className, Toast.LENGTH_LONG).show();
             } catch (IOException e) {
                 Toast.makeText(v.getContext(), "Failed to create PDF", Toast.LENGTH_LONG).show();

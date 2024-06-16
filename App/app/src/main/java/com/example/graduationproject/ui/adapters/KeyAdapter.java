@@ -2,9 +2,7 @@ package com.example.graduationproject.ui.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,10 +23,9 @@ import com.example.graduationproject.data.remote.RegisterKeyRequest;
 import com.example.graduationproject.data.remote.RegisterKeyResponse;
 import com.example.graduationproject.network.services.SignatureApiService;
 import com.example.graduationproject.ui.activities.HomeActivity;
-import com.example.graduationproject.ui.activities.LoginActivity;
 import com.example.graduationproject.utils.AuthenticateFingerprint;
 import com.example.graduationproject.utils.FileHelper;
-import com.example.graduationproject.utils.OnKeyItemClickListener;
+import com.example.graduationproject.utils.callback.OnKeyItemClickListener;
 import com.example.graduationproject.utils.RSADecryptor;
 import com.example.graduationproject.utils.RSAHelper;
 import com.example.graduationproject.utils.RequirePermission;
@@ -52,7 +49,7 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
     List<Boolean> expandedStates;
     private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
     private final int recyclerViewType;
-    private OnKeyItemClickListener keyItemClickListener;
+    private final OnKeyItemClickListener keyItemClickListener;
     public static final int MODE_SHOW = 1;
     public static final int MODE_SIGN = 2;
 
@@ -86,57 +83,48 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
         // Reset visibility and other properties to ensure proper recycling
         holder.expandedLayout.setVisibility(View.GONE);
 
-        if (recyclerViewType == MODE_SHOW) {
-            holder.keyId.setText("UUID: " + key.getUuid().toString());
-            holder.keyParaType.setText("Type: " + key.getDilithiumParametersType());
-            ConstraintLayout expandedLayout = holder.expandedLayout;
-            Button registerButton = holder.btnRegister;
-            Button extractButton = holder.btnExtract;
+        switch (recyclerViewType) {
+            case MODE_SHOW: {
+                holder.keyId.setText("UUID: " + key.getUuid().toString());
+                holder.keyParaType.setText("Type: " + key.getDilithiumParametersType());
+                ConstraintLayout expandedLayout = holder.expandedLayout;
+                Button registerButton = holder.btnRegister;
+                Button extractButton = holder.btnExtract;
 
-            registerButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AuthenticateFingerprint.authenticate(
-                            context,
-                            () -> sendRegisterKeyRequest(
-                                    key.getUuid().toString(),
-                                    key.getDilithiumParametersType(),
-                                    key.getPublicKeyString()),
-                            "Authenticate to register key"
-                    );
-                }
-            });
-            extractButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AuthenticateFingerprint.authenticate(
-                            context,
-                            () -> extractPrivateKey(key.getUuid().toString()),
-                            "Authenticate to extract key"
-                    );
-                }
-            });
-            holder.rowLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                registerButton.setOnClickListener(v -> AuthenticateFingerprint.authenticate(
+                        context,
+                        () -> sendRegisterKeyRequest(
+                                key.getUuid().toString(),
+                                key.getDilithiumParametersType(),
+                                key.getPublicKeyString()),
+                        "Authenticate to register key"
+                ));
+                extractButton.setOnClickListener(v -> AuthenticateFingerprint.authenticate(
+                        context,
+                        () -> extractPrivateKey(key.getUuid().toString()),
+                        "Authenticate to extract key"
+                ));
+                holder.rowLayout.setOnClickListener(v -> {
                     if (expandedLayout.getVisibility() == View.GONE) {
                         expandedLayout.setVisibility(View.VISIBLE);
                     } else {
                         expandedLayout.setVisibility(View.GONE);
                     }
-                }
-            });
-        } else {
-            if (recyclerViewType == MODE_SIGN) {
-                holder.rowLayout.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (keyItemClickListener != null) {
-                            keyItemClickListener.onKeyItemClick(key);
-                        }
-                    }
                 });
             }
+                break;
+            case MODE_SIGN: {
+                holder.rowLayout.setOnClickListener(v -> AuthenticateFingerprint.authenticate(
+                        v.getContext(),
+                        () -> {
+                            if (keyItemClickListener != null) {
+                                keyItemClickListener.onKeyItemClick(key);
+                            }
+                        },
+                        "Authenticate to sign transcript"
+                ));
+            }
+                break;
         }
     }
 
