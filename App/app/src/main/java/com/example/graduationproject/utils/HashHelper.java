@@ -42,7 +42,7 @@ public class HashHelper {
     }
 
     // Helper method to convert byte array to hex string
-    public static byte[] calculateHash(byte[] data) throws NoSuchAlgorithmException {
+    private static byte[] calculateHash(byte[] data) throws NoSuchAlgorithmException {
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
         return messageDigest.digest(data);
     }

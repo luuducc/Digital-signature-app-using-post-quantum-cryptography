@@ -9,10 +9,12 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.config.MyConstant;
+import com.example.graduationproject.data.local.MyViewModel;
 import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.Transcript;
 import com.example.graduationproject.network.services.TranscriptApiService;
@@ -34,6 +36,7 @@ public class HomeActivity extends AppCompatActivity {
     private List<Transcript> transcripts;
     private List<PublicKeyToStore> retrievedPublicKeys;
     private final String SHARED_PREFERENCES_NAME = MyConstant.SHARED_PREFERENCES_NAME;
+    private MyViewModel myViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,6 +44,9 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
+
+        // initialize the view model
+        myViewModel = new ViewModelProvider(this).get(MyViewModel.class);
 
         fetchKeysInKeyStore();
         fetchTranscripts();
@@ -59,6 +65,9 @@ public class HomeActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d("MyHomeActivity", response.message()); // http status message
                     transcripts = response.body();
+
+                    // Update the ViewModel with the fetched transcript
+                    myViewModel.setTranscripts(transcripts);
 
                     // Only setup view pager when the transcript is fetched
                     setupViewPager();

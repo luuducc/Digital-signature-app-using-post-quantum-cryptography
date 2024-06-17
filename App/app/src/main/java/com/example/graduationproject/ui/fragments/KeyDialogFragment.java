@@ -19,6 +19,7 @@ import com.example.graduationproject.R;
 import com.example.graduationproject.config.MyConstant;
 import com.example.graduationproject.data.local.PrivateKeyToStore;
 import com.example.graduationproject.data.local.PublicKeyToStore;
+import com.example.graduationproject.data.local.TranscriptToHash;
 import com.example.graduationproject.data.remote.Transcript;
 import com.example.graduationproject.data.remote.VerifyRequest;
 import com.example.graduationproject.data.remote.VerifyResponse;
@@ -57,7 +58,6 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
     public static final int MODE_SIGN_ALL = 3;
     public static final int MODE_VERIFY_JSON = 4;
     public static final int MODE_VERIFY_PDF = 5;
-    public static final int MODE_VERIFY_ALL = 6;
     public interface OnTranscriptSignedListener {
         void onTranscriptSigned(boolean isSignedJson, boolean isSignedPdf);
     }
@@ -82,11 +82,18 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
         RecyclerView keyRecyclerView = view.findViewById(R.id.key_list_popup_recycler_view);
         List<PublicKeyToStore> publicKeyToStoreList = FileHelper.retrievePublicKeyFromFile(view.getContext());
 
-        KeyAdapter keyAdapter = new KeyAdapter(
-                getActivity(),
-                publicKeyToStoreList, keyAdapterModeType,
-                key -> signAndPostTranscript(selectedTranscript, key));
-
+        KeyAdapter keyAdapter;
+        if (modeType >= 1 && modeType <= 3) { // Sign mode
+            keyAdapter = new KeyAdapter(
+                    getActivity(),
+                    publicKeyToStoreList, keyAdapterModeType,
+                    key -> signAndPostTranscript(selectedTranscript, key));
+        } else {
+            keyAdapter = new KeyAdapter(
+                    getActivity(),
+                    publicKeyToStoreList, keyAdapterModeType,
+                    key -> verifyTranscript(selectedTranscript, key));
+        }
         keyRecyclerView.setAdapter(keyAdapter);
         keyRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.VERTICAL, false));
         return view;
@@ -112,7 +119,7 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
         byte[] privateKeyByte = RSADecryptor.decryptData(encryptedPrivateKeyByte, RSAHelper.getPrivateKey());
         byte[] publicKeyByte = publicKeyToStore.getPublicKey();
 
-        DilithiumPublicKeyParameters publicKeyParameters = DilithiumHelper.retrievePublicKey(privateKeyToStore.getDilithiumParametersType(), publicKeyByte);
+        DilithiumPublicKeyParameters publicKeyParameters = DilithiumHelper.retrievePublicKey(publicKeyToStore.getDilithiumParametersType(), publicKeyByte);
         DilithiumPrivateKeyParameters privateKeyParameters = DilithiumHelper.retrievePrivateKey(publicKeyToStore.getDilithiumParametersType(), privateKeyByte, publicKeyParameters);
 
         switch (modeType) {
@@ -126,25 +133,16 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
                 signJsonTranscript(transcript, keyId.toString(), privateKeyParameters);
                 signPdfTranscript(transcript, keyId.toString(), privateKeyParameters);
                 break;
-            case MODE_VERIFY_JSON:
-                Toast.makeText(getContext(), "json", Toast.LENGTH_SHORT).show();
-                break;
-            case MODE_VERIFY_PDF:
-                Toast.makeText(getContext(), "pdf", Toast.LENGTH_SHORT).show();
-                break;
-            case MODE_VERIFY_ALL:
-                Toast.makeText(getContext(), "all", Toast.LENGTH_SHORT).show();
-                break;
         }
     }
     private void signJsonTranscript(
             Transcript transcript, String keyId, DilithiumPrivateKeyParameters privateKeyParameters) {
         String className = transcript.getClassName();
-
         // get the transcript string and hash it
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting().create();
-        String jsonTranscript = gson.toJson(transcript);
+        TranscriptToHash transcriptToHash = TranscriptToHash.transfer(transcript);
+        String jsonTranscript = gson.toJson(transcriptToHash);
         byte[] hashedMessage = HashHelper.hashString(jsonTranscript);
         String initialHash = Base64.getEncoder().encodeToString(hashedMessage);
         // sign the transcript
@@ -160,7 +158,6 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
             Transcript transcript, String keyId, DilithiumPrivateKeyParameters privateKeyParameters) {
         try {
             String className = transcript.getClassName();
-
             // hash PDF
             byte[] hashedMessage = HashHelper.hashPDF(transcript.getClassName());
             String initialHash = Base64.getEncoder().encodeToString(hashedMessage);
@@ -226,5 +223,43 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
                 }
             }
         });
+    }
+    private void verifyTranscript(Transcript transcript, PublicKeyToStore publicKeyToStore) {
+        if (!publicKeyToStore.isRegistered()) {
+            Toast.makeText(getContext(), "Key is not registered", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        switch (modeType) {
+            case MODE_VERIFY_JSON: {
+                Gson gson = new GsonBuilder()
+                        .setPrettyPrinting().create();
+                TranscriptToHash transcriptToHash = TranscriptToHash.transfer(transcript);
+                String jsonTranscript = gson.toJson(transcriptToHash);
+                byte[] initialHashedMessage = HashHelper.hashString(jsonTranscript);
+                verify(initialHashedMessage, publicKeyToStore, transcript.getJsonSignature());
+            }
+                break;
+            case MODE_VERIFY_PDF:
+                try {
+                    String className = transcript.getClassName();
+                    // hash PDF
+                    byte[] initialHashedMessage = HashHelper.hashPDF(transcript.getClassName());
+                    verify(initialHashedMessage, publicKeyToStore, transcript.getPdfSignature());
+                } catch (MyException e) {
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+    private void verify(byte[] initialHashedMessage, PublicKeyToStore publicKeyToStore, String signatureString) {
+        byte[] publicKeyByte = publicKeyToStore.getPublicKey();
+        byte[] signature = Base64.getDecoder().decode(signatureString);
+        DilithiumPublicKeyParameters publicKeyParameters = DilithiumHelper.retrievePublicKey(
+                publicKeyToStore.getDilithiumParametersType(),
+                publicKeyByte);
+        boolean result = DilithiumHelper.verify(
+                publicKeyParameters,initialHashedMessage, signature
+        );
+        Toast.makeText(getContext(), "" + result, Toast.LENGTH_SHORT).show();
     }
 }

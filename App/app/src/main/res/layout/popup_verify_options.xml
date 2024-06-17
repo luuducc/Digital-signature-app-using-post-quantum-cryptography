@@ -42,12 +42,6 @@
             android:layout_height="wrap_content"
             android:text="Verify PDF"
             android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/btnVerifyAll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Verify All" />
     </LinearLayout>
 
     <!-- Divider -->
