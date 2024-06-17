@@ -42,6 +42,7 @@ import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPrivateKeyParamet
 import org.bouncycastle.pqc.crypto.crystals.dilithium.DilithiumPublicKeyParameters;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -136,13 +137,17 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
     }
     private void signJsonTranscript(
             Transcript transcript, String keyId, DilithiumPrivateKeyParameters privateKeyParameters) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        String currentTimeString = currentTime.toString();
+        Log.d("KeyDialogFragment", currentTime.toString());
         String className = transcript.getClassName();
         // get the transcript string and hash it
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting().create();
         TranscriptToHash transcriptToHash = TranscriptToHash.transfer(transcript);
         String jsonTranscript = gson.toJson(transcriptToHash);
-        byte[] hashedMessage = HashHelper.hashString(jsonTranscript);
+        String dataToHash = jsonTranscript + currentTimeString;
+        byte[] hashedMessage = HashHelper.hashString(dataToHash);
         String initialHash = Base64.getEncoder().encodeToString(hashedMessage);
         // sign the transcript
         byte[] signature = DilithiumHelper.sign(privateKeyParameters, hashedMessage);
@@ -150,36 +155,42 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
         String signatureString = Base64.getEncoder().encodeToString(signature);
 
         sendVerifyRequest(
-                className, keyId, initialHash, signatureString, VerifyRequest.JSON_SIGNATURE,
+                className, keyId, initialHash,
+                currentTimeString, signatureString, VerifyRequest.JSON_SIGNATURE,
                 result -> Toast.makeText(getContext(), "JSON verification result: " + result, Toast.LENGTH_SHORT).show());
     }
     private void signPdfTranscript(
             Transcript transcript, String keyId, DilithiumPrivateKeyParameters privateKeyParameters) {
         try {
+            LocalDateTime currentTime = LocalDateTime.now();
+            String currentTimeString = currentTime.toString();
             String className = transcript.getClassName();
             // hash PDF
-            byte[] hashedMessage = HashHelper.hashPDF(transcript.getClassName());
+            byte[] hashedMessage = HashHelper.hashPDF(transcript.getClassName(), currentTimeString);
             String initialHash = Base64.getEncoder().encodeToString(hashedMessage);
             // sign the transcript
             byte[] signature = DilithiumHelper.sign(privateKeyParameters, hashedMessage);
             String signatureString = Base64.getEncoder().encodeToString(signature);
 
             sendVerifyRequest(
-                    className, keyId, initialHash, signatureString, VerifyRequest.PDF_SIGNATURE,
+                    className, keyId, initialHash,
+                    currentTimeString, signatureString, VerifyRequest.PDF_SIGNATURE,
                     result -> Toast.makeText(getContext(), "PDF verification result: " + result, Toast.LENGTH_SHORT).show());
         } catch (MyException e) {
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
     private void sendVerifyRequest(
-            String className, String keyId, String initialHashMessage, String signatureString, boolean isPdfElseJson,
+            String className, String keyId, String initialHashMessage,
+            String currentTime, String signatureString, boolean isPdfElseJson,
             VerifyCallback verifyCallback) {
         // send the verify request
         SignatureApiService signatureApiService = SignatureApiService.getInstance();
         SharedPreferences sharedPreferences = getContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         String accessToken =  sharedPreferences.getString("accessToken", "defaultAccessToken");
         VerifyRequest verifyRequest = new VerifyRequest(
-                className, keyId, initialHashMessage, signatureString, isPdfElseJson);
+                className, keyId, initialHashMessage,
+                currentTime, signatureString, isPdfElseJson);
         signatureApiService.verifyTranscript("Bearer " + accessToken, verifyRequest).enqueue(new Callback<VerifyResponse>() {
             @Override
             public void onResponse(Call<VerifyResponse> call, Response<VerifyResponse> response) {
@@ -190,10 +201,12 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
                         selectedTranscript.setPdfSignature(signatureString);
                         selectedTranscript.setSignedPdf(true);
                         selectedTranscript.setKeyIdPdf(keyId);
+                        selectedTranscript.setSignTimePdf(currentTime);
                     } else {
                         selectedTranscript.setJsonSignature(signatureString);
                         selectedTranscript.setSignedJson(true);
                         selectedTranscript.setKeyIdJson(keyId);
+                        selectedTranscript.setSignTimeJson(currentTime);
                     }
                     // Update the View model to re-render the UI
                     myViewModel.updateTranscripts(selectedTranscript);
@@ -240,7 +253,8 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
                         .setPrettyPrinting().create();
                 TranscriptToHash transcriptToHash = TranscriptToHash.transfer(transcript);
                 String jsonTranscript = gson.toJson(transcriptToHash);
-                byte[] initialHashedMessage = HashHelper.hashString(jsonTranscript);
+                String dataToHash = jsonTranscript + transcript.getSignTimeJson();
+                byte[] initialHashedMessage = HashHelper.hashString(dataToHash);
                 verify(initialHashedMessage, publicKeyToStore, transcript.getJsonSignature());
             }
                 break;
@@ -248,7 +262,8 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
                 try {
                     String className = transcript.getClassName();
                     // hash PDF
-                    byte[] initialHashedMessage = HashHelper.hashPDF(transcript.getClassName());
+                    byte[] initialHashedMessage = HashHelper.hashPDF(
+                            transcript.getClassName(), transcript.getSignTimePdf());
                     verify(initialHashedMessage, publicKeyToStore, transcript.getPdfSignature());
                 } catch (MyException e) {
                     Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();

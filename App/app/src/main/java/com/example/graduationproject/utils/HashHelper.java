@@ -20,7 +20,7 @@ public class HashHelper {
         }
     }
 
-    public static byte[] hashPDF(String className) throws MyException {
+    public static byte[] hashPDF(String className, String currentTime) throws MyException {
         String pdfFolderPath = MyConstant.GRADUATION_PROJECT_FOLDER + "/Transcripts";
 
         File file = new File(pdfFolderPath, className + ".pdf");
@@ -33,12 +33,14 @@ public class HashHelper {
             byte[] fileBytes = new byte[(int) file.length()];
             fis.read(fileBytes);
             fis.close();
-            byte[] hash = calculateHash(fileBytes);
-            return hash;
+            byte[] currentTimeBytes = currentTime.getBytes();
+            byte[] bytesToHash = new byte[fileBytes.length + currentTimeBytes.length];
+            System.arraycopy(fileBytes, 0, bytesToHash, 0, fileBytes.length);
+            System.arraycopy(currentTimeBytes, 0, bytesToHash, fileBytes.length, currentTimeBytes.length);
+            return calculateHash(bytesToHash);
         } catch (IOException | NoSuchAlgorithmException e) {
             throw new MyException("Failed to hash pdf file");
         }
-
     }
 
     // Helper method to convert byte array to hex string

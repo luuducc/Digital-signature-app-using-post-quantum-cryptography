@@ -44,6 +44,12 @@ const transcriptSchema = new mongoose.Schema({
   keyIdPdf: {
     type: String
   },
+  signTimeJson: {
+    type: String
+  },
+  signTimePdf: {
+    type: String
+  },
   __v: {
     type: Number,
     select: false // exclude this field from query

@@ -5,17 +5,20 @@ public class VerifyRequest {
     private String initialHashedMessage;
     private String signature;
     private String className;
+    private String signTime;
     // if true => pdf signature, else json signature
     private boolean isPdfElseJson;
     public static boolean PDF_SIGNATURE = true;
     public static boolean JSON_SIGNATURE = false;
 
     public VerifyRequest(
-            String className, String keyId, String initialHashedMessage, String signature, boolean isPdfElseJson
+            String className, String keyId, String initialHashedMessage,
+            String signTime, String signature, boolean isPdfElseJson
     ) {
         this.className = className;
         this.keyId = keyId;
         this.initialHashedMessage = initialHashedMessage;
+        this.signTime = signTime;
         this.signature = signature;
         this.isPdfElseJson = isPdfElseJson;
     }

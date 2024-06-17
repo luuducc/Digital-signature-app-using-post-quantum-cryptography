@@ -5,7 +5,9 @@ const fs = require('fs')
 
 const verifyDilithiumSignature = async (req, res) => {
   try {
-    const {className, keyId, initialHashedMessage, signature, isPdfElseJson} = req.body
+    const {
+      className, keyId, initialHashedMessage, signTime, signature, isPdfElseJson
+    } = req.body
     const userId = req.user._id
 
     let updatedTranscript
@@ -14,13 +16,13 @@ const verifyDilithiumSignature = async (req, res) => {
     if (isPdfElseJson) { // update pdf signature
       updatedTranscript = await Transcript.findOneAndUpdate(
         { className, user: userId },
-        { PdfSignature: signature, isSignedPdf: true, keyIdPdf: keyId }, 
+        { PdfSignature: signature, isSignedPdf: true, keyIdPdf: keyId, signTimePdf: signTime }, 
         { new: true}
       )
     } else { // update json signature
       updatedTranscript = await Transcript.findOneAndUpdate(
         { className, user: userId },
-        { JsonSignature: signature, isSignedJson: true, keyIdJson: keyId },
+        { JsonSignature: signature, isSignedJson: true, keyIdJson: keyId, signTimeJson: signTime },
         { new: true }
       )
     }

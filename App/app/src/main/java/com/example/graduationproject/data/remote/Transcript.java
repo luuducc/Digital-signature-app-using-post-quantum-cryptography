@@ -12,6 +12,8 @@ public class Transcript {
     private boolean isSignedPdf = false;
     private String keyIdJson;
     private String keyIdPdf;
+    private String signTimeJson;
+    private String signTimePdf;
 
     public String getClassName() {
         return className;
@@ -79,6 +81,22 @@ public class Transcript {
 
     public void setKeyIdPdf(String keyIdPdf) {
         this.keyIdPdf = keyIdPdf;
+    }
+
+    public String getSignTimeJson() {
+        return signTimeJson;
+    }
+
+    public void setSignTimeJson(String signTimeJson) {
+        this.signTimeJson = signTimeJson;
+    }
+
+    public String getSignTimePdf() {
+        return signTimePdf;
+    }
+
+    public void setSignTimePdf(String signTimePdf) {
+        this.signTimePdf = signTimePdf;
     }
 
     public static class StudentGrade{
