@@ -12,11 +12,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.config.MyConstant;
+import com.example.graduationproject.data.local.MyViewModel;
 import com.example.graduationproject.data.local.PrivateKeyToStore;
 import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.local.TranscriptToHash;
@@ -53,22 +55,18 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
     private final String SHARED_PREFERENCES_NAME = MyConstant.SHARED_PREFERENCES_NAME;
     private int modeType;
     private int keyAdapterModeType;
+    private MyViewModel myViewModel;
     public static final int MODE_SIGN_JSON = 1;
     public static final int MODE_SIGN_PDF = 2;
     public static final int MODE_SIGN_ALL = 3;
     public static final int MODE_VERIFY_JSON = 4;
     public static final int MODE_VERIFY_PDF = 5;
-    public interface OnTranscriptSignedListener {
-        void onTranscriptSigned(boolean isSignedJson, boolean isSignedPdf);
-    }
-    private OnTranscriptSignedListener listener;
     public KeyDialogFragment(
             Transcript selectedTranscript, int modeType,
-            int keyAdapterModetype, OnTranscriptSignedListener listenter) {
+            int keyAdapterModetype) {
         this.selectedTranscript = selectedTranscript;
         this.modeType = modeType;
         this.keyAdapterModeType = keyAdapterModetype;
-        this.listener = listenter;
     }
 
     @Nullable
@@ -78,6 +76,7 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
             @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.popup_key_list, container, false);
+        myViewModel = new ViewModelProvider(requireActivity()).get(MyViewModel.class);
 
         RecyclerView keyRecyclerView = view.findViewById(R.id.key_list_popup_recycler_view);
         List<PublicKeyToStore> publicKeyToStoreList = FileHelper.retrievePublicKeyFromFile(view.getContext());
@@ -188,10 +187,15 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
                     boolean result = response.body().getResult();
                     verifyCallback.onVerifySuccess(result);
                     if (isPdfElseJson) {
-                        listener.onTranscriptSigned(false, true);
+//                        listener.onTranscriptSigned(false, true);
+                        selectedTranscript.setPdfSignature(signatureString);
+                        selectedTranscript.setSignedPdf(true);
                     } else {
-                        listener.onTranscriptSigned(true, false);
+//                        listener.onTranscriptSigned(true, false);
+                        selectedTranscript.setJsonSignature(signatureString);
+                        selectedTranscript.setSignedJson(true);
                     }
+                    myViewModel.updateTranscripts(selectedTranscript);
                 } else {
                     Log.d("TranscriptFragment", String.valueOf(response.code())); // http status message
                     try {

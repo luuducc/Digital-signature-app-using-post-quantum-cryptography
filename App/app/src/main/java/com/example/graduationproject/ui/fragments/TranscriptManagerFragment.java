@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TranscriptManagerFragment extends Fragment implements KeyDialogFragment.OnTranscriptSignedListener{
+public class TranscriptManagerFragment extends Fragment {
     private Button btnCreatePdf, btnSign, btnVerify;
     private Spinner spinner;
     private TextView isSignedJson, isSignedPdf;
@@ -234,17 +234,7 @@ public class TranscriptManagerFragment extends Fragment implements KeyDialogFrag
     }
     private void showKeySelectionDialog(int keyDialogModeType, int keyAdapterModeType) {
         KeyDialogFragment keyDialogFragment = new KeyDialogFragment(
-                selectedTranscript, keyDialogModeType, keyAdapterModeType, this);
+                selectedTranscript, keyDialogModeType, keyAdapterModeType);
         keyDialogFragment.show(getActivity().getSupportFragmentManager(), "keyDialogFragment");
-    }
-    @Override
-    public void onTranscriptSigned(boolean isSignedJson, boolean isSignedPdf) {
-        // Update the isSigned TextView
-        if (isSignedJson) {
-            this.isSignedJson.setText("Signed JSON: true");
-        }
-        if (isSignedPdf) {
-            this.isSignedPdf.setText("Signed PDF: true");
-        }
     }
 }
