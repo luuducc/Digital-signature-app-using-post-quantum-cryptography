@@ -16,12 +16,14 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.data.local.MyViewModel;
+import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.Transcript;
 import com.example.graduationproject.ui.adapters.KeyAdapter;
 import com.example.graduationproject.ui.adapters.TranscriptAdapter;
@@ -41,7 +43,6 @@ public class TranscriptManagerFragment extends Fragment {
     private Transcript selectedTranscript;
     private MyViewModel myViewModel;
     private final String SHARED_PREFERENCES_NAME = "graduation_preferences";
-
     // allow the fragment to fetch data and display
     public TranscriptManagerFragment(List<Transcript> transcripts) {
         this.transcripts = transcripts;
@@ -65,7 +66,6 @@ public class TranscriptManagerFragment extends Fragment {
         isSignedJson = view.findViewById(R.id.isSignedJson);
         isSignedPdf = view.findViewById(R.id.isSignedPdf);
 
-//        setupSpinner();
         newSetupSpinner();
         setupCreatePdfButton();
         setupSignButton();
@@ -97,9 +97,7 @@ public class TranscriptManagerFragment extends Fragment {
                         if (transcript.getClassName().equals(selectedClassname)) {
                             // assign the selected transcript
                             selectedTranscript = transcript;
-
-                            isSignedJson.setText("Signed JSON: " + transcript.isSignedJson());
-                            isSignedPdf.setText("Signed PDF: " + transcript.isSignedPdf());
+                            setIsSignedTextView(transcript);
                             List<Transcript.StudentGrade> studentGradeList =  transcript.getStudentGrades();
                             TranscriptAdapter transcriptAdapter = new TranscriptAdapter(getActivity(), studentGradeList);
                             recyclerView.setAdapter(transcriptAdapter);
@@ -113,46 +111,6 @@ public class TranscriptManagerFragment extends Fragment {
 
                 }
             });
-        });
-    }
-    private void setupSpinner() {
-        if (transcripts == null) {
-            return;
-        }
-        List<String> classNames = new ArrayList<>();
-        for (Transcript transcript : transcripts) {
-            classNames.add(transcript.getClassName());
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                getActivity(),
-                android.R.layout.simple_spinner_item,
-                classNames
-        );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedClassname = classNames.get(position);
-                for (Transcript transcript : transcripts) {
-                    if (transcript.getClassName().equals(selectedClassname)) {
-                        // assign the selected transcript
-                        selectedTranscript = transcript;
-
-                        isSignedJson.setText("Signed JSON: " + transcript.isSignedJson());
-                        isSignedPdf.setText("Signed PDF: " + transcript.isSignedPdf());
-                        List<Transcript.StudentGrade> studentGradeList =  transcript.getStudentGrades();
-                        TranscriptAdapter transcriptAdapter = new TranscriptAdapter(getActivity(), studentGradeList);
-                        recyclerView.setAdapter(transcriptAdapter);
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                    }
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
         });
     }
     private void setupCreatePdfButton() {
@@ -236,5 +194,30 @@ public class TranscriptManagerFragment extends Fragment {
         KeyDialogFragment keyDialogFragment = new KeyDialogFragment(
                 selectedTranscript, keyDialogModeType, keyAdapterModeType);
         keyDialogFragment.show(getActivity().getSupportFragmentManager(), "keyDialogFragment");
+    }
+    private void setIsSignedTextView(Transcript transcript) {
+        String keyIdJson = transcript.getKeyIdJson();
+        String keyIdPdf = transcript.getKeyIdPdf();
+        String keyJsonAlias = null;
+        String keyPdfAlias = null;
+        Log.d("TranscriptFragment", "hi" + keyIdJson);
+        List<PublicKeyToStore> publicKeyList = FileHelper.retrievePublicKeyFromFile(getContext());
+        for (PublicKeyToStore publicKey : publicKeyList) {
+            String keyId = publicKey.getUuid().toString();
+            String keyAlias = publicKey.getKeyAlias();
+            if (keyId.equals(keyIdJson)) {
+                keyJsonAlias = keyAlias;
+            }
+            if (keyId.equals(keyIdPdf)) {
+                keyPdfAlias = keyAlias;
+            }
+            if (keyJsonAlias != null && keyPdfAlias != null) {
+                break;
+            }
+        }
+        String jsonText = keyJsonAlias != null ? (" - " + keyJsonAlias) : "";
+        String pdfText = keyPdfAlias != null ? (" - " + keyPdfAlias) : "";
+        isSignedJson.setText("Signed JSON: " + transcript.isSignedJson() + jsonText);
+        isSignedPdf.setText("Signed PDF: " + transcript.isSignedPdf() + pdfText);
     }
 }

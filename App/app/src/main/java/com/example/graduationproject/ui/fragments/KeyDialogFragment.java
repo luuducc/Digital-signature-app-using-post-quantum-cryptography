@@ -187,14 +187,15 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
                     boolean result = response.body().getResult();
                     verifyCallback.onVerifySuccess(result);
                     if (isPdfElseJson) {
-//                        listener.onTranscriptSigned(false, true);
                         selectedTranscript.setPdfSignature(signatureString);
                         selectedTranscript.setSignedPdf(true);
+                        selectedTranscript.setKeyIdPdf(keyId);
                     } else {
-//                        listener.onTranscriptSigned(true, false);
                         selectedTranscript.setJsonSignature(signatureString);
                         selectedTranscript.setSignedJson(true);
+                        selectedTranscript.setKeyIdJson(keyId);
                     }
+                    // Update the View model to re-render the UI
                     myViewModel.updateTranscripts(selectedTranscript);
                 } else {
                     Log.d("TranscriptFragment", String.valueOf(response.code())); // http status message

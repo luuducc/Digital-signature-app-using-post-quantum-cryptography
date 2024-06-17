@@ -10,6 +10,8 @@ public class Transcript {
     private String PdfSignature;
     private boolean isSignedJson = false;
     private boolean isSignedPdf = false;
+    private String keyIdJson;
+    private String keyIdPdf;
 
     public String getClassName() {
         return className;
@@ -61,6 +63,22 @@ public class Transcript {
 
     public void setSignedPdf(boolean signedPdf) {
         isSignedPdf = signedPdf;
+    }
+
+    public String getKeyIdJson() {
+        return keyIdJson;
+    }
+
+    public void setKeyIdJson(String keyIdJson) {
+        this.keyIdJson = keyIdJson;
+    }
+
+    public String getKeyIdPdf() {
+        return keyIdPdf;
+    }
+
+    public void setKeyIdPdf(String keyIdPdf) {
+        this.keyIdPdf = keyIdPdf;
     }
 
     public static class StudentGrade{

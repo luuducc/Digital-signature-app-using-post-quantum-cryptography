@@ -38,6 +38,12 @@ const transcriptSchema = new mongoose.Schema({
   isSignedPdf: {
     type: Boolean
   },
+  keyIdJson: {
+    type: String
+  },
+  keyIdPdf: {
+    type: String
+  },
   __v: {
     type: Number,
     select: false // exclude this field from query

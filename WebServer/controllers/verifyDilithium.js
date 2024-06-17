@@ -14,13 +14,13 @@ const verifyDilithiumSignature = async (req, res) => {
     if (isPdfElseJson) { // update pdf signature
       updatedTranscript = await Transcript.findOneAndUpdate(
         { className, user: userId },
-        { PdfSignature: signature, isSignedPdf: true }, 
+        { PdfSignature: signature, isSignedPdf: true, keyIdPdf: keyId }, 
         { new: true}
       )
     } else { // update json signature
       updatedTranscript = await Transcript.findOneAndUpdate(
         { className, user: userId },
-        { JsonSignature: signature, isSignedJson: true },
+        { JsonSignature: signature, isSignedJson: true, keyIdJson: keyId },
         { new: true }
       )
     }
