@@ -48,5 +48,4 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.77")
     // https://mvnrepository.com/artifact/androidx.biometric/biometric
     implementation("androidx.biometric:biometric:1.0.1")
-
 }
