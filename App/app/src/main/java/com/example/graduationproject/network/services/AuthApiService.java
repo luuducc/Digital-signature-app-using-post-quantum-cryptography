@@ -11,7 +11,7 @@ public class AuthApiService {
     private static AuthApiService instance;
     private AuthApiInterface apiInterface;
     private AuthApiService() {
-        apiInterface = RetrofitClient.getAuthRetrofitInstance().create(AuthApiInterface.class);
+        apiInterface = RetrofitClient.getInstance().create(AuthApiInterface.class);
     }
     public static AuthApiService getInstance() {
         if (instance == null) {

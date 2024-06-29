@@ -26,8 +26,7 @@ import com.example.graduationproject.ui.activities.HomeActivity;
 import com.example.graduationproject.utils.AuthenticateFingerprint;
 import com.example.graduationproject.utils.FileHelper;
 import com.example.graduationproject.utils.callback.OnKeyItemClickListener;
-import com.example.graduationproject.utils.RSADecryptor;
-import com.example.graduationproject.utils.RSAHelper;
+import com.example.graduationproject.utils.KeystoreHelper;
 import com.example.graduationproject.utils.RequirePermission;
 
 import java.io.File;
@@ -239,7 +238,7 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.MyViewHolder> {
         byte[] encryptedPrivateKeyByte = returnedPrivateKey.getEncryptedPrivateKey();
 
         // get the initial dilithium private key
-        byte[] initialDilithiumKey = RSADecryptor.decryptData(encryptedPrivateKeyByte, RSAHelper.getPrivateKey());
+        byte[] initialDilithiumKey = KeystoreHelper.decryptData(encryptedPrivateKeyByte, KeystoreHelper.getPrivateKey());
 
         // get the string value
         String initialDilithiumKeyString = Base64.getEncoder().encodeToString(initialDilithiumKey);

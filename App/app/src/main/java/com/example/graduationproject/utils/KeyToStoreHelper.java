@@ -26,12 +26,12 @@ public class KeyToStoreHelper {
         DilithiumPublicKeyParameters publicKeyParameters = (DilithiumPublicKeyParameters)keyPair.getPublic();
 
         // work with keystore
-        RSAHelper.generateKeyPair();
-        PrivateKey privateKeyStoreKey = RSAHelper.getPrivateKey();
-        PublicKey publicKeyStoreKey = RSAHelper.getPublicKey();
+        KeystoreHelper.generateKeyPair();
+        PrivateKey privateKeyStoreKey = KeystoreHelper.getPrivateKey();
+        PublicKey publicKeyStoreKey = KeystoreHelper.getPublicKey();
 
         // encrypt dilithium private key in key store
-        byte[] encryptedPrivateKeyStoreKey = RSAEncryptor.encryptData(privateKeyParameters.getEncoded(), publicKeyStoreKey);
+        byte[] encryptedPrivateKeyStoreKey = KeystoreHelper.encryptData(privateKeyParameters.getEncoded(), publicKeyStoreKey);
 
         // create key object holder to store to file
         UUID uuid = UUID.randomUUID();

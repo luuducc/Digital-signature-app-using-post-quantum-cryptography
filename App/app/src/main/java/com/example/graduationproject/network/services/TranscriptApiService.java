@@ -14,7 +14,7 @@ public class TranscriptApiService {
     private TranscriptApiInterface apiInterface;
 
     private TranscriptApiService() {
-        apiInterface = RetrofitClient.getTranscriptRetrofitInstance().create(TranscriptApiInterface.class);
+        apiInterface = RetrofitClient.getInstance().create(TranscriptApiInterface.class);
     }
 
     public static TranscriptApiService getInstance() {

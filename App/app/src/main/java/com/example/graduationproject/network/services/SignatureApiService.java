@@ -13,7 +13,7 @@ public class SignatureApiService {
     private static SignatureApiService instance;
     private SignatureApiInterface apiInterface;
     private SignatureApiService() {
-        apiInterface = RetrofitClient.getSignatureRetrofitInstance().create(SignatureApiInterface.class);
+        apiInterface = RetrofitClient.getInstance().create(SignatureApiInterface.class);
     }
     public static SignatureApiService getInstance() {
         if (instance == null) {

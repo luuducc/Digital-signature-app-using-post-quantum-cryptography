@@ -32,8 +32,7 @@ import com.example.graduationproject.ui.adapters.KeyAdapter;
 import com.example.graduationproject.utils.DilithiumHelper;
 import com.example.graduationproject.utils.FileHelper;
 import com.example.graduationproject.utils.HashHelper;
-import com.example.graduationproject.utils.RSADecryptor;
-import com.example.graduationproject.utils.RSAHelper;
+import com.example.graduationproject.utils.KeystoreHelper;
 import com.example.graduationproject.utils.callback.VerifyCallback;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -116,7 +115,7 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
         assert privateKeyToStore != null;
 
         byte[] encryptedPrivateKeyByte = privateKeyToStore.getEncryptedPrivateKey();
-        byte[] privateKeyByte = RSADecryptor.decryptData(encryptedPrivateKeyByte, RSAHelper.getPrivateKey());
+        byte[] privateKeyByte = KeystoreHelper.decryptData(encryptedPrivateKeyByte, KeystoreHelper.getPrivateKey());
         byte[] publicKeyByte = publicKeyToStore.getPublicKey();
 
         DilithiumPublicKeyParameters publicKeyParameters = DilithiumHelper.retrievePublicKey(publicKeyToStore.getDilithiumParametersType(), publicKeyByte);
