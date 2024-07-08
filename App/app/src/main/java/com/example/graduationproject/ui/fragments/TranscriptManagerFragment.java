@@ -1,7 +1,9 @@
 package com.example.graduationproject.ui.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.config.MyConstant;
 import com.example.graduationproject.data.local.MyViewModel;
 import com.example.graduationproject.data.local.PublicKeyToStore;
 import com.example.graduationproject.data.remote.Transcript;
@@ -118,11 +121,13 @@ public class TranscriptManagerFragment extends Fragment {
             String className = spinner.getSelectedItem().toString();
             TranscriptAdapter adapter = (TranscriptAdapter) recyclerView.getAdapter();
             List<Transcript.StudentGrade> studentGradeList = adapter.getDataList();
-
+            // Get username
+            SharedPreferences sharedPreferences = requireContext().getSharedPreferences(MyConstant.SHARED_PREFERENCES_NAME, Activity.MODE_PRIVATE);
+            String username = sharedPreferences.getString("username", null);
             // require read/write file permission
             RequirePermission.verifyStoragePermissions(getActivity());
             try {
-                FileHelper.createPdf(studentGradeList, className);
+                FileHelper.createPdf(studentGradeList, className, username);
                 Toast.makeText(v.getContext(), "Created PDF for class: " + className, Toast.LENGTH_LONG).show();
             } catch (IOException e) {
                 Toast.makeText(v.getContext(), "Failed to create PDF", Toast.LENGTH_LONG).show();

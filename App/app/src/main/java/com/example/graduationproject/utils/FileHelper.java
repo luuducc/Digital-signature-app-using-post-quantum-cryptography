@@ -190,7 +190,8 @@ public class FileHelper {
         }
 
     }
-    public static void createPdf(List<Transcript.StudentGrade> studentGradeList, String className) throws IOException {
+    public static void createPdf(
+            List<Transcript.StudentGrade> studentGradeList, String className, String username) throws IOException {
         String pdfFolderPath = MyConstant.GRADUATION_PROJECT_FOLDER + "/Transcripts";
         File customFolder = new File(pdfFolderPath);
         // create pdf folder if not exist
@@ -239,10 +240,11 @@ public class FileHelper {
         document.add(table);
 
         // Add footer
-        Paragraph footer = new Paragraph("Bui Trong Tung")
+        Paragraph footer = new Paragraph(username)
                 .setFontColor(ColorConstants.BLACK)
                 .setFontSize(12)
-                .setTextAlignment(TextAlignment.RIGHT);
+                .setTextAlignment(TextAlignment.RIGHT)
+                .setMarginRight(100);
         document.add(footer);
 
         document.close();

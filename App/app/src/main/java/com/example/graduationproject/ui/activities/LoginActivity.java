@@ -71,6 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = sharedPreferences .edit();
                     editor.putString("accessToken", loginResponse.getAccessToken());
                     editor.putString("userId", loginResponse.get_id());
+                    editor.putString("username", loginResponse.getUsername());
                     editor.apply();
 
                     navigateToMainScreen();
