@@ -1,7 +1,9 @@
 const Transcript = require('../models/Transcript')
 
-const getAllTranscripts = async (userId) => {
-  const transcripts = await Transcript.find({ user: userId })
+const getAllTranscripts = async () => {
+  // for admin only
+  // const transcripts = await Transcript.find({ user: userId })
+  const transcripts = await Transcript.find()
   return transcripts
 }
 

@@ -7,7 +7,7 @@ const {
 const {verifyToken, verifyTokenAndUser, verifyTokenAndAdmin} = require("../controllers/verifyToken");
 
 router.route('/')
-  .get(verifyToken, getAllTranscripts)
+  .get(verifyTokenAndAdmin, getAllTranscripts)
   .post(verifyToken, createTranscript)
 
 router.route('/:className')

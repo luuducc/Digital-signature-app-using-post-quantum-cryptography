@@ -3,8 +3,8 @@ const transcriptService = require('../services/transcriptService')
 
 const getAllTranscripts = async (req, res) => {
   try {
-    const userId = req.user._id
-    const transcripts = await transcriptService.getAllTranscripts(userId)
+    // const userId = req.user._id
+    const transcripts = await transcriptService.getAllTranscripts()
     if (transcripts) res.json(transcripts)
     else throw new Error('cannot find')
   } catch (error) {

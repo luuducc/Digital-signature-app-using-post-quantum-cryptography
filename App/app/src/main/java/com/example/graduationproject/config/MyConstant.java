@@ -9,7 +9,7 @@ public class MyConstant {
     public static final String KEY_STORE_KEY_ALIAS = "graduation_rsa_key";
     public static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     public static final String EXTRACTED_PRIVATE_KEY_FILE_NAME = "extracted_private_key.txt";
-    public static final String DOMAIN = "http://192.168.1.196:5000";
+    public static final String DOMAIN = "http://192.168.17.214:5000";
     public static final String GRADUATION_PROJECT_FOLDER =
             Environment.getExternalStorageDirectory().toString() + "/Graduation Project";
 

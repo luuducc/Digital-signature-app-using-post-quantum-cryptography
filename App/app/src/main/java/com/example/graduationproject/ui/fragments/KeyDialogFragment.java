@@ -260,6 +260,10 @@ public class KeyDialogFragment extends androidx.fragment.app.DialogFragment {
             case MODE_VERIFY_PDF:
                 try {
                     String className = transcript.getClassName();
+                    if (transcript.getSignTimePdf() == null) {
+                        Toast.makeText(getContext(), "false", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
                     // hash PDF
                     byte[] initialHashedMessage = HashHelper.hashPDF(
                             transcript.getClassName(), transcript.getSignTimePdf());

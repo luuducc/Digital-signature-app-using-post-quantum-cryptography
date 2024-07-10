@@ -207,6 +207,7 @@ public class TranscriptManagerFragment extends Fragment {
         String keyPdfAlias = null;
         Log.d("TranscriptFragment", "hi" + keyIdJson);
         List<PublicKeyToStore> publicKeyList = FileHelper.retrievePublicKeyFromFile(getContext());
+        if (publicKeyList == null) return;
         for (PublicKeyToStore publicKey : publicKeyList) {
             String keyId = publicKey.getUuid().toString();
             String keyAlias = publicKey.getKeyAlias();

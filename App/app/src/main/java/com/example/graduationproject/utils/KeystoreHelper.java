@@ -35,7 +35,7 @@ public class KeystoreHelper {
             // DO NOT UNCOMMENT THE FOLLOWING CODE BLOCK UNLESS YOU FULLY UNDERSTAND ITS PURPOSE AND CONSEQUENCES.
             // Uncommenting this code without understanding may lead to unexpected behavior, data loss, or security vulnerabilities.
             // If you need to uncomment this code, ensure that you thoroughly understand its functionality and implications, and proceed with caution.
-//             clearKeyStore();
+//            clearKeyStore();
 
             displayKeyStoreEntries();
 
