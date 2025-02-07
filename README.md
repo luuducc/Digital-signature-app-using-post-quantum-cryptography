@@ -14,9 +14,9 @@ Not only that, it uses Post Quantum Cryptography for the signing procedure, prev
 
 Here is my keypair storing solution and general flow for this project:
 
-![keystore](images/keystore.png)
+<img src="images/keystore.png" alt="keystore" width="450px">
 
-![storekey](images/storekey.png)
+<img src="images/storekey.png" alt="storekey" width="450px">
 
 ## Structure
 
@@ -28,26 +28,12 @@ The steps to run each module are provided within their respective folders.
 
 ## App Preview
 
-<div class="image-div" style="display: flex; justify-content: space-evenly; margin-bottom: 10px">
-  <div style="text-align: center">
-    <img src="images/key-manager-screen.png" alt="key manager screen" height="400" border="1px solid black"> 
-    <p>Key Manager screen</p>
-  </div>
-  <div style="text-align: center">
-    <img src="images/biometric-authentication.png" alt="key manager screen" height="400" border="1px solid black"> 
-    <p>Biometric authentiation required</p>
-  </div>
-</div>
-<div class="image-div" style="display: flex; justify-content: space-evenly;">
-  <div style="text-align: center">
-    <img src="images/sign-options.png" height="200"  border="1px solid black">
-    <p>Sign options</p>
-  </div>
-  <div style="text-align: center">
-    <img src="images/verify-options.png" height="200"  border="1px solid black">
-    <p>Verify options</p>
-  </div>
-</div>
+|||
+|:---:|:---:|
+|<img src="images/key-manager-screen.png" alt="key manager screen" height="400" border="1px solid black">|<img src="images/biometric-authentication.png" alt="key manager screen" height="400" border="1px solid black">|
+|Key Manager screen|Biometric authentiation required|
+|<img src="images/sign-options.png" height="200"  border="1px solid black">|<img src="images/verify-options.png" height="200"  border="1px solid black">|
+|Sign options|Verify options|
 
 
 
